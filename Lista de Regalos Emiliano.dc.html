@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+html,body{margin:0;padding:0;background:#F6EFDF}
+img{user-select:none;-webkit-user-drag:none}
+[data-reveal]{opacity:0;transform:translateY(26px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+[data-reveal].is-in{opacity:1 !important;transform:none !important}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes floatYsm{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes popIn{0%{opacity:0;transform:translateY(14px) scale(.98)}100%{opacity:1;transform:none}}
+@keyframes modalIn{0%{opacity:0;transform:translateY(20px) scale(.97)}100%{opacity:1;transform:none}}
+.gift-card{animation:popIn .5s ease both}
+.cat-btn{cursor:pointer;transition:transform .25s ease,filter .25s ease;flex:0 0 auto;height:clamp(50px,5.4vw,66px);aspect-ratio:var(--r)}
+.cat-btn:hover{transform:translateY(-3px);filter:drop-shadow(0 8px 16px rgba(120,90,40,.28))}
+.cat-bar::-webkit-scrollbar{display:none}
+.store-btn{cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,border-color .2s}
+.store-btn:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(120,90,40,.16);border-color:rgba(184,137,60,.7)}
+.fld{width:100%;padding:11px 13px;border:1px solid rgba(184,137,60,.4);border-radius:10px;background:#fff;color:#5A4423;font-family:'Jost';font-size:14px;outline:none}
+.only-mobile{display:none}
+@media(max-width:1000px){.prod-grid{grid-template-columns:repeat(3,1fr) !important}}
+@media(max-width:720px){
+  .prod-grid{grid-template-columns:repeat(2,1fr) !important;gap:12px !important}
+  .only-desktop{display:none !important}
+  .only-mobile{display:block !important}
+  .hero-texto{left:calc(29% + 55px) !important;top:calc(37% + 15px) !important;width:clamp(96px,32vw,165px) !important;animation:none !important}
+  .cat-bar{flex-wrap:wrap !important;justify-content:center !important;gap:8px !important;padding:0 14px !important}
+  .cat-btn{height:44px !important;width:auto !important}
+}
+@media(max-width:430px){.prod-grid{grid-template-columns:1fr !important}}
+</style>
+</helmet>
+
+<div style="font-family:'Jost',sans-serif;color:#5A4423;background:#F6EFDF;overflow-x:hidden;position:relative;width:100%;">
+
+  <!-- ===== HERO ===== -->
+  <section data-screen-label="Hero Regalos" style="position:relative;width:100%;overflow:hidden;">
+    <img src="assets/regalos-hero.png" alt="" style="display:block;width:100%;height:auto;" />
+    <img src="assets/rl-texto-hero.png" alt="Lista de Regalos de Emiliano" class="hero-texto" style="position:absolute;top:calc(30% - 40px);left:28%;transform:translate(-50%,-50%);width:clamp(240px,30vw,480px);height:auto;z-index:3;animation:floatY 6s ease-in-out infinite;" />
+  </section>
+
+  <!-- ===== BANDA INFO ===== -->
+  <div style="position:relative;z-index:4;max-width:1140px;margin:-3.5vw auto 0;padding:0 18px;">
+    <img data-reveal src="assets/rl-banda-info2.png" alt="Queremos agradecerte por ser parte de este momento. Elige el regalo · Cómpralo fácilmente · Adquiérelo en la tienda de tu preferencia · Tu regalo llegará con mucho amor a Emiliano" style="display:block;width:100%;height:auto;filter:drop-shadow(0 14px 30px rgba(120,90,40,.16));" />
+  </div>
+
+  <!-- ===== CATEGORÍAS ===== -->
+  <div class="cat-bar" style="position:relative;z-index:2;display:flex;gap:clamp(8px,1.4vw,16px);justify-content:center;align-items:center;flex-wrap:wrap;max-width:1140px;margin:30px auto 0;padding:0 16px;">
+    <sc-for list="{{ categories }}" as="c" hint-placeholder-count="6">
+      <div class="cat-btn" onClick="{{ c.onSelect }}" title="{{ c.name }}" style="--r:{{ c.ratio }};{{ c.hstyle }};background:{{ c.bg }} {{ c.pos }}/{{ c.size }} no-repeat;"></div>
+    </sc-for>
+  </div>
+
+  <!-- ===== TÍTULO CATEGORÍA ===== -->
+  <div style="text-align:center;margin:22px auto 6px;padding:0 16px;display:flex;justify-content:center;">
+    <div title="{{ activeName }}" style="height:clamp(24px,3.4vw,38px);aspect-ratio:{{ activeTitleRatio }};background:{{ activeTitleBg }} center/contain no-repeat;"></div>
+  </div>
+
+  <!-- ===== GRID DE PRODUCTOS ===== -->
+  <div style="max-width:1140px;margin:0 auto;padding:14px 16px 70px;">
+    <div class="prod-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;">
+      <sc-for list="{{ products }}" as="p" hint-placeholder-count="8">
+        <div class="gift-card" style="position:relative;background:{{ p.cardBg }};border:1px solid {{ p.cardBorder }};border-radius:18px;overflow:hidden;box-shadow:0 10px 26px rgba(120,90,40,.10);display:flex;flex-direction:column;">
+          <sc-if value="{{ p.bought }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;top:12px;right:12px;z-index:3;display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:30px;background:#566134;color:#FBF6EC;font-family:'Jost';font-weight:600;font-size:11.5px;letter-spacing:.06em;box-shadow:0 6px 14px rgba(70,80,40,.34);">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FBF6EC" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>¡Comprado!
+            </div>
+          </sc-if>
+          <div style="position:relative;width:100%;aspect-ratio:1/1;background:{{ p.fotoBg }} center/cover no-repeat,radial-gradient(circle at 50% 38%,#F4EAD2,#E7D7B0);display:flex;align-items:center;justify-content:center;overflow:hidden;">
+            <sc-if value="{{ p.noFoto }}" hint-placeholder-val="{{ true }}">
+              <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#C2A878" stroke-width="1.3" opacity="0.8"><path d="M20 7h-2.2A3 3 0 0 0 12 4a3 3 0 0 0-5.8 3H4a1 1 0 0 0-1 1v3h18V8a1 1 0 0 0-1-1zM5 13v7a1 1 0 0 0 1 1h5v-8H5zm8 8h5a1 1 0 0 0 1-1v-7h-6v8z"/></svg>
+            </sc-if>
+            <sc-if value="{{ p.bought }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;inset:0;background:rgba(86,97,52,.26);pointer-events:none;"></div>
+            </sc-if>
+          </div>
+          <div style="padding:16px 16px 18px;display:flex;flex-direction:column;flex:1;">
+            <div style="font-family:'Jost';font-weight:500;font-size:16px;line-height:1.3;color:#3a2f1c;min-height:42px;">{{ p.name }}</div>
+            <div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
+              <span style="width:9px;height:9px;border-radius:50%;background:{{ p.dotColor }};display:inline-block;"></span>
+              <span style="font-family:'Jost';font-weight:500;font-size:13px;color:{{ p.dotColor }};">{{ p.statusLabel }}</span>
+            </div>
+            <sc-if value="{{ p.available }}" hint-placeholder-val="{{ true }}">
+              <div style="margin-top:14px;display:flex;flex-direction:column;gap:9px;">
+                <button onClick="{{ p.onBuy }}" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:13px;border:none;border-radius:12px;background:#566134;color:#FBF6EC;font-family:'Jost';font-weight:500;font-size:13.5px;letter-spacing:.03em;cursor:pointer;transition:background .25s,transform .25s;" style-hover="background:#475129;transform:translateY(-1px)">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#FBF6EC" stroke-width="1.7"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.4 12.2a1.5 1.5 0 0 0 1.5 1.2h8.4a1.5 1.5 0 0 0 1.5-1.2L21 7H6"/></svg>
+                  Comprar regalo
+                </button>
+                <button onClick="{{ p.onPrepare }}" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px;border:1px solid #B8893C;border-radius:12px;background:#F3E8CF;color:#8a6526;font-family:'Jost';font-weight:500;font-size:12.5px;letter-spacing:.03em;cursor:pointer;transition:background .25s,transform .25s;" style-hover="background:#EADFC6;transform:translateY(-1px)">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a6526" stroke-width="1.8"><path d="M20 6L9 17l-5-5"/></svg>
+                  Marcar como comprado
+                </button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ p.bought }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:14px;display:flex;flex-direction:column;align-items:center;gap:8px;">
+                <div style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:13px;border-radius:14px;background:#E7DAC0;color:#9a6f28;font-family:'Jost';font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:none;white-space:nowrap;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#9a6f28"><path d="M20 7h-2.2A3 3 0 0 0 12 4a3 3 0 0 0-5.8 3H4a1 1 0 0 0-1 1v3h18V8a1 1 0 0 0-1-1zM5 13v7a1 1 0 0 0 1 1h5v-8H5zm8 8h5a1 1 0 0 0 1-1v-7h-6v8z"/></svg>
+                  Regalo recibido
+                </div>
+                <div style="font-family:'Jost',sans-serif;font-style:italic;font-size:19px;color:#9a6f28;">¡Muchas gracias!</div>
+                <div style="color:#b08a4a;font-size:15px;line-height:1;">♥</div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer data-screen-label="Footer Regalos" style="position:relative;width:100%;">
+    <img src="assets/rl-footer.png" alt="Así se prepara el cuarto de Emiliano. Gracias por acompañarnos, con mucho cariño, María Camila, Cristian y Emiliano." style="display:block;width:100%;height:auto;margin-top:10px;" />
+  </footer>
+
+  <!-- volver + admin -->
+  <a href="Invitacion Emiliano.dc.html" style="position:fixed;top:14px;left:14px;z-index:50;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 13px;border:1px solid rgba(184,137,60,.5);border-radius:26px;background:rgba(251,246,236,.86);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#8a6526;font-family:'Jost';font-size:10px;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;box-shadow:0 4px 14px rgba(120,90,40,.16);">← Invitación</a>
+  <button onClick="{{ openAdmin }}" aria-label="Administración" style="position:fixed;bottom:16px;right:16px;z-index:50;display:inline-flex;align-items:center;gap:7px;height:42px;padding:0 17px;border:1px solid rgba(184,137,60,.5);border-radius:30px;background:rgba(251,246,236,.9);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#8a6526;font-family:'Jost';font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;box-shadow:0 6px 18px rgba(120,90,40,.2);">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a6526" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 7 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H1a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 2.6 7a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H7a1.6 1.6 0 0 0 1-1.5V1a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V7a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg>
+    Admin
+  </button>
+
+  <!-- ===== MODAL: COMPRAR (tiendas) ===== -->
+  <sc-if value="{{ buyOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeModal }}" style="position:fixed;inset:0;z-index:600;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(40,30,14,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);">
+      <div onClick="{{ stop }}" style="position:relative;width:100%;max-width:380px;max-height:88vh;overflow-y:auto;background:#FBF7EE;border-radius:22px;box-shadow:0 30px 70px rgba(20,12,4,.5);padding:26px 24px 22px;animation:modalIn .35s ease both;">
+        <button onClick="{{ closeModal }}" aria-label="Cerrar" style="position:absolute;top:16px;right:16px;width:30px;height:30px;border:none;border-radius:50%;background:transparent;color:#9a7c42;font-size:20px;line-height:1;cursor:pointer;">✕</button>
+        <div style="display:flex;gap:15px;align-items:center;">
+          <div style="flex:none;width:88px;height:88px;border-radius:14px;overflow:hidden;background:{{ modalFotoBg }} center/cover no-repeat,radial-gradient(circle at 50% 40%,#F1E6CA,#E6D5AC);"></div>
+          <div style="flex:1;">
+            <div style="font-family:'Jost',sans-serif;font-weight:700;font-size:23px;line-height:1.12;color:#3a2f1c;">{{ modalName }}</div>
+            <div style="margin-top:9px;display:flex;align-items:center;gap:7px;">
+              <span style="width:8px;height:8px;border-radius:50%;background:#6f8a3f;display:inline-block;"></span>
+              <span style="font-family:'Jost';font-weight:500;font-size:12.5px;color:#6f8a3f;">Disponible</span>
+            </div>
+          </div>
+        </div>
+        <p style="font-family:'Jost';font-weight:300;font-size:13.5px;line-height:1.55;color:#7a6843;text-align:center;margin:20px 6px 16px;">Serás redirigido al sitio donde puedes comprar este regalo.</p>
+        <div style="display:flex;flex-direction:column;gap:11px;">
+          <sc-for list="{{ modalStores }}" as="st" hint-placeholder-count="3">
+            <a class="store-btn" href="{{ st.url }}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border:1px solid rgba(184,137,60,.4);border-radius:13px;background:#fff;text-decoration:none;min-height:54px;">
+              <sc-if value="{{ st.hasLogo }}" hint-placeholder-val="{{ false }}">
+                <div title="{{ st.label }}" style="width:150px;height:30px;background:{{ st.logoBg }} center/contain no-repeat;"></div>
+              </sc-if>
+              <sc-if value="{{ st.noLogo }}" hint-placeholder-val="{{ true }}">
+                <span style="font-family:'Jost';font-weight:600;font-size:17px;color:{{ st.color }};font-style:{{ st.fstyle }};">{{ st.label }}</span>
+              </sc-if>
+            </a>
+          </sc-for>
+        </div>
+        <button onClick="{{ closeModal }}" style="width:100%;margin-top:16px;padding:10px;border:none;background:transparent;color:#9a7c42;font-family:'Jost';font-size:13px;cursor:pointer;">Cancelar</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===== MODAL: MARCAR COMO COMPRADO ===== -->
+  <sc-if value="{{ confirmOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeModal }}" style="position:fixed;inset:0;z-index:600;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(40,30,14,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);">
+      <div onClick="{{ stop }}" style="position:relative;width:100%;max-width:380px;max-height:88vh;overflow-y:auto;background:#FBF7EE;border-radius:22px;box-shadow:0 30px 70px rgba(20,12,4,.5);padding:24px 24px 0;animation:modalIn .35s ease both;">
+        <button onClick="{{ closeModal }}" aria-label="Cerrar" style="position:absolute;top:16px;right:16px;width:30px;height:30px;border:none;border-radius:50%;background:transparent;color:#9a7c42;font-size:20px;line-height:1;cursor:pointer;">✕</button>
+        <div style="font-family:'Jost',sans-serif;font-weight:600;font-size:24px;color:#5A4423;text-align:center;border-bottom:1px solid rgba(184,137,60,.22);padding-bottom:16px;">Marcar como comprado</div>
+        <div style="display:flex;gap:15px;align-items:center;margin-top:18px;">
+          <div style="flex:none;width:88px;height:88px;border-radius:14px;overflow:hidden;background:{{ modalFotoBg }} center/cover no-repeat,radial-gradient(circle at 50% 40%,#F1E6CA,#E6D5AC);"></div>
+          <div style="font-family:'Jost',sans-serif;font-weight:700;font-size:23px;line-height:1.12;color:#3a2f1c;">{{ modalName }}</div>
+        </div>
+        <p style="font-family:'Jost';font-weight:300;font-size:13.5px;line-height:1.55;color:#7a6843;text-align:center;margin:18px 4px 16px;">Para confirmar tu compra, ingresa tu número de WhatsApp.</p>
+        <div style="font-family:'Jost';font-weight:500;font-size:12px;letter-spacing:.04em;color:#8a6526;margin-bottom:7px;">WhatsApp</div>
+        <div style="display:flex;align-items:center;gap:8px;border:1px solid rgba(184,137,60,.45);border-radius:11px;background:#fff;padding:4px 12px;">
+          <span style="font-size:18px;">🇨🇴</span>
+          <span style="font-family:'Jost';font-size:14px;color:#8a7a59;">+57</span>
+          <input value="{{ waNumber }}" onInput="{{ onWa }}" type="tel" inputmode="numeric" placeholder="300 123 4567" style="flex:1;padding:11px 4px;border:none;background:transparent;color:#5A4423;font-family:'Jost';font-size:15px;outline:none;" />
+        </div>
+        <sc-if value="{{ confirmError }}" hint-placeholder-val="{{ false }}">
+          <div style="font-family:'Jost';font-size:12px;color:#b3502a;text-align:center;margin-top:8px;">{{ confirmError }}</div>
+        </sc-if>
+        <div style="display:flex;gap:9px;align-items:flex-start;margin:14px 2px 18px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B8893C" stroke-width="1.7" style="flex:none;margin-top:1px;"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          <span style="font-family:'Jost';font-weight:300;font-size:11.5px;line-height:1.5;color:#9a8559;">Tu número está seguro con nosotros y solo lo usaremos para confirmar tu compra.</span>
+        </div>
+        <div style="margin:0 -24px;">
+          <button onClick="{{ confirmPurchase }}" style="width:100%;padding:18px;border:none;border-radius:0 0 22px 22px;background:#566134;color:#FBF6EC;font-family:'Jost';font-weight:600;font-size:14px;letter-spacing:.06em;cursor:pointer;transition:background .25s;" style-hover="background:#475129">{{ confirmBtnLabel }}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===== MODAL: ADMIN LOGIN ===== -->
+  <sc-if value="{{ loginOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeAdmin }}" style="position:fixed;inset:0;z-index:700;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(40,30,14,.55);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);">
+      <div onClick="{{ stop }}" style="position:relative;width:100%;max-width:380px;background:#FBF7EE;border-radius:22px;box-shadow:0 30px 70px rgba(20,12,4,.5);padding:30px 26px 26px;animation:modalIn .35s ease both;">
+        <button onClick="{{ closeAdmin }}" aria-label="Cerrar" style="position:absolute;top:16px;right:16px;width:30px;height:30px;border:none;border-radius:50%;background:transparent;color:#9a7c42;font-size:20px;line-height:1;cursor:pointer;">✕</button>
+        <div style="font-family:'Jost',sans-serif;font-weight:600;font-size:26px;color:#5A4423;text-align:center;">Acceso administrador</div>
+        <p style="font-family:'Jost';font-weight:300;font-size:13px;color:#7a6843;text-align:center;margin:6px 0 20px;">Ingresa con tu correo y contraseña.</p>
+        <input value="{{ authEmail }}" onInput="{{ onEmail }}" type="email" placeholder="Correo electrónico" class="fld" style="margin-bottom:10px;" />
+        <input value="{{ authPass }}" onInput="{{ onPass }}" type="password" placeholder="Contraseña" class="fld" />
+        <sc-if value="{{ authError }}" hint-placeholder-val="{{ false }}">
+          <div style="font-family:'Jost';font-size:12px;color:#b3502a;text-align:center;margin-top:10px;">{{ authError }}</div>
+        </sc-if>
+        <button onClick="{{ doLogin }}" style="width:100%;margin-top:16px;padding:14px;border:none;border-radius:28px;background:#566134;color:#FBF6EC;font-family:'Jost';font-weight:600;font-size:13px;letter-spacing:.06em;cursor:pointer;">{{ loginBtnLabel }}</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===== MODAL: ADMIN PANEL ===== -->
+  <sc-if value="{{ panelOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:700;background:#F6EFDF;overflow-y:auto;animation:modalIn .3s ease both;">
+      <div style="position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;background:#566134;color:#FBF6EC;">
+        <div style="font-family:'Jost',sans-serif;font-weight:600;font-size:22px;">Panel de administración</div>
+        <div style="display:flex;gap:10px;">
+          <button onClick="{{ doLogout }}" style="padding:9px 16px;border:1px solid rgba(255,255,255,.5);border-radius:24px;background:transparent;color:#FBF6EC;font-family:'Jost';font-size:11px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;">Salir</button>
+          <button onClick="{{ closeAdmin }}" style="padding:9px 16px;border:none;border-radius:24px;background:#FBF6EC;color:#566134;font-family:'Jost';font-size:11px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;">Cerrar</button>
+        </div>
+      </div>
+
+      <div style="max-width:760px;margin:0 auto;padding:20px 18px 80px;">
+        <div style="display:flex;gap:8px;margin-bottom:18px;">
+          <button onClick="{{ tabProductos }}" style="padding:9px 18px;border-radius:24px;border:1px solid {{ tabPB }};background:{{ tabPBg }};color:{{ tabPC }};font-family:'Jost';font-size:12px;letter-spacing:.04em;cursor:pointer;">Productos</button>
+          <button onClick="{{ tabTiendas }}" style="padding:9px 18px;border-radius:24px;border:1px solid {{ tabTB }};background:{{ tabTBg }};color:{{ tabTC }};font-family:'Jost';font-size:12px;letter-spacing:.04em;cursor:pointer;">Tiendas</button>
+          <button onClick="{{ tabAsistentes }}" style="padding:9px 18px;border-radius:24px;border:1px solid {{ tabAB }};background:{{ tabABg }};color:{{ tabAC }};font-family:'Jost';font-size:12px;letter-spacing:.04em;cursor:pointer;">Asistentes</button>
+        </div>
+        <sc-if value="{{ dbWarning }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fbe7d2;border:1px solid #d9b border-radius:12px;padding:14px 16px;margin-bottom:18px;font-family:'Jost';font-size:13px;line-height:1.55;color:#8a5a1e;border-radius:12px;">{{ dbWarning }}</div>
+        </sc-if>
+
+        <sc-if value="{{ adminList }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;">
+              <div style="font-family:'Jost',sans-serif;font-weight:600;font-size:24px;color:#5A4423;">Productos</div>
+              <button onClick="{{ newProduct }}" style="padding:11px 18px;border:none;border-radius:24px;background:#566134;color:#FBF6EC;font-family:'Jost';font-weight:500;font-size:12px;letter-spacing:.05em;cursor:pointer;">+ Agregar producto</button>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
+              <sc-for list="{{ adminCats }}" as="c" hint-placeholder-count="6">
+                <button onClick="{{ c.onSelect }}" style="padding:8px 14px;border:1px solid {{ c.border }};border-radius:22px;background:{{ c.bg }};color:{{ c.color }};font-family:'Jost';font-size:12px;cursor:pointer;">{{ c.name }}</button>
+              </sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <sc-for list="{{ adminProducts }}" as="p" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:13px;background:#FBF6EC;border:1px solid rgba(184,137,60,.26);border-radius:14px;padding:11px 14px;">
+                  <div style="flex:none;width:52px;height:52px;border-radius:10px;background:{{ p.fotoBg }} center/cover no-repeat,radial-gradient(circle,#F1E6CA,#E6D5AC);"></div>
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-family:'Jost';font-weight:500;font-size:15px;color:#3a2f1c;">{{ p.name }}</div>
+                    <div style="font-family:'Jost';font-size:11.5px;color:#9a8559;">{{ p.storesLabel }}</div>
+                  </div>
+                  <button onClick="{{ p.onEdit }}" style="flex:none;padding:8px 14px;border:1px solid #B8893C;border-radius:22px;background:transparent;color:#8a6526;font-family:'Jost';font-size:11px;cursor:pointer;">Editar</button>
+                  <sc-if value="{{ p.bought }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ p.onUnmark }}" style="flex:none;padding:8px 12px;border:1px solid #566134;border-radius:22px;background:#566134;color:#FBF6EC;font-family:'Jost';font-size:11px;cursor:pointer;white-space:nowrap;">Quitar comprado</button>
+                  </sc-if>
+                  <button onClick="{{ p.onDelete }}" style="flex:none;padding:8px 12px;border:1px solid #c08a7a;border-radius:22px;background:transparent;color:#b3502a;font-family:'Jost';font-size:11px;cursor:pointer;">Eliminar</button>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ adminForm }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="font-family:'Jost',sans-serif;font-weight:600;font-size:24px;color:#5A4423;margin-bottom:16px;">{{ formTitle }}</div>
+            <label style="font-family:'Jost';font-size:12px;color:#8a6526;display:block;margin-bottom:5px;">Nombre del producto</label>
+            <input value="{{ fNombre }}" onInput="{{ onFNombre }}" class="fld" style="margin-bottom:14px;" placeholder="Ej. Coche Travel System" />
+            <label style="font-family:'Jost';font-size:12px;color:#8a6526;display:block;margin-bottom:5px;">Categoría</label>
+            <select value="{{ fCat }}" onChange="{{ onFCat }}" class="fld" style="margin-bottom:14px;">
+              <sc-for list="{{ catOptions }}" as="o" hint-placeholder-count="6">
+                <option value="{{ o.id }}">{{ o.name }}</option>
+              </sc-for>
+            </select>
+            <label style="font-family:'Jost';font-size:12px;color:#8a6526;display:block;margin-bottom:5px;">Foto del producto</label>
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+              <div style="flex:none;width:72px;height:72px;border-radius:12px;background:{{ fFotoBg }} center/cover no-repeat,radial-gradient(circle,#F1E6CA,#E6D5AC);border:1px solid rgba(184,137,60,.3);"></div>
+              <label style="padding:10px 16px;border:1px dashed rgba(184,137,60,.6);border-radius:10px;background:#FBF6EC;color:#8a6526;font-family:'Jost';font-size:12px;cursor:pointer;">{{ uploadLabel }}<input onChange="{{ onPhotoFile }}" type="file" accept="image/*" style="display:none;" /></label>
+            </div>
+            <label style="font-family:'Jost';font-size:12px;color:#8a6526;display:block;margin-bottom:5px;">Tiendas / dónde comprar</label>
+            <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:10px;">
+              <sc-for list="{{ fStores }}" as="t" hint-placeholder-count="1">
+                <div style="display:flex;flex-direction:column;gap:7px;border:1px solid rgba(184,137,60,.2);border-radius:11px;padding:9px;background:#FBF6EC;">
+                  <div style="display:flex;gap:8px;align-items:center;">
+                    <select value="{{ t.store }}" onChange="{{ t.onStore }}" class="fld" style="flex:1;">
+                      <sc-for list="{{ storeOptions }}" as="so" hint-placeholder-count="5">
+                        <option value="{{ so.id }}">{{ so.label }}</option>
+                      </sc-for>
+                    </select>
+                    <button onClick="{{ t.onRemove }}" style="flex:none;width:36px;height:36px;border:1px solid rgba(184,137,60,.4);border-radius:50%;background:transparent;color:#9a7c42;font-size:15px;cursor:pointer;">✕</button>
+                  </div>
+                  <sc-if value="{{ t.isCustom }}" hint-placeholder-val="{{ false }}">
+                    <input value="{{ t.customName }}" onInput="{{ t.onCustom }}" class="fld" placeholder="Nombre de la tienda (ej. MercadoLibre)" />
+                  </sc-if>
+                  <input value="{{ t.value }}" onInput="{{ t.onValue }}" class="fld" placeholder="{{ t.placeholder }}" />
+                </div>
+              </sc-for>
+            </div>
+            <button onClick="{{ addStore }}" style="padding:9px 15px;border:1px dashed rgba(184,137,60,.6);border-radius:10px;background:transparent;color:#8a6526;font-family:'Jost';font-size:12px;cursor:pointer;margin-bottom:20px;">+ Agregar tienda</button>
+            <sc-if value="{{ formError }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:'Jost';font-size:12px;color:#b3502a;margin-bottom:12px;">{{ formError }}</div>
+            </sc-if>
+            <div style="display:flex;gap:10px;">
+              <button onClick="{{ saveProduct }}" style="flex:1;padding:14px;border:none;border-radius:26px;background:#566134;color:#FBF6EC;font-family:'Jost';font-weight:600;font-size:13px;cursor:pointer;">{{ saveLabel }}</button>
+              <button onClick="{{ cancelForm }}" style="flex:none;padding:14px 22px;border:1px solid rgba(184,137,60,.5);border-radius:26px;background:transparent;color:#8a6526;font-family:'Jost';font-size:13px;cursor:pointer;">Cancelar</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ tiendasList }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;">
+              <div style="font-family:'Jost',sans-serif;font-weight:600;font-size:24px;color:#5A4423;">Tiendas</div>
+              <button onClick="{{ newStore }}" style="padding:11px 18px;border:none;border-radius:24px;background:#566134;color:#FBF6EC;font-family:'Jost';font-weight:500;font-size:12px;letter-spacing:.05em;cursor:pointer;">+ Agregar tienda</button>
+            </div>
+            <sc-if value="{{ storesEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:'Jost';font-size:13px;line-height:1.55;color:#9a8559;background:#FBF6EC;border:1px solid rgba(184,137,60,.26);border-radius:12px;padding:16px;">Aún no has creado tiendas. Crea una (con su logo) y podrás reutilizarla al agregar productos.</div>
+            </sc-if>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <sc-for list="{{ tiendas }}" as="t" hint-placeholder-count="2">
+                <div style="display:flex;align-items:center;gap:13px;background:#FBF6EC;border:1px solid rgba(184,137,60,.26);border-radius:14px;padding:11px 14px;">
+                  <div style="flex:none;width:62px;height:42px;background:{{ t.logoBg }} center/contain no-repeat;border-radius:8px;border:1px solid rgba(184,137,60,.18);"></div>
+                  <div style="flex:1;min-width:0;font-family:'Jost';font-weight:500;font-size:15px;color:#3a2f1c;">{{ t.nombre }}</div>
+                  <button onClick="{{ t.onEdit }}" style="flex:none;padding:8px 14px;border:1px solid #B8893C;border-radius:22px;background:transparent;color:#8a6526;font-family:'Jost';font-size:11px;cursor:pointer;">Editar</button>
+                  <button onClick="{{ t.onDelete }}" style="flex:none;padding:8px 12px;border:1px solid #c08a7a;border-radius:22px;background:transparent;color:#b3502a;font-family:'Jost';font-size:11px;cursor:pointer;">Eliminar</button>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ tiendasForm }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="font-family:'Jost',sans-serif;font-weight:600;font-size:24px;color:#5A4423;margin-bottom:16px;">{{ storeFormTitle }}</div>
+            <label style="font-family:'Jost';font-size:12px;color:#8a6526;display:block;margin-bottom:5px;">Nombre de la tienda</label>
+            <input value="{{ sNombre }}" onInput="{{ onSNombre }}" class="fld" style="margin-bottom:16px;" placeholder="Ej. Falabella" />
+            <label style="font-family:'Jost';font-size:12px;color:#8a6526;display:block;margin-bottom:5px;">Logo de la tienda</label>
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">
+              <div style="flex:none;width:96px;height:60px;border-radius:12px;background:{{ sLogoBg }} center/contain no-repeat;border:1px solid rgba(184,137,60,.3);"></div>
+              <label style="padding:10px 16px;border:1px dashed rgba(184,137,60,.6);border-radius:10px;background:#FBF6EC;color:#8a6526;font-family:'Jost';font-size:12px;cursor:pointer;">{{ storeUploadLabel }}<input onChange="{{ onStoreLogo }}" type="file" accept="image/*" style="display:none;" /></label>
+            </div>
+            <sc-if value="{{ storeError }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:'Jost';font-size:12px;color:#b3502a;margin-bottom:12px;">{{ storeError }}</div>
+            </sc-if>
+            <div style="display:flex;gap:10px;">
+              <button onClick="{{ saveStore }}" style="flex:1;padding:14px;border:none;border-radius:26px;background:#566134;color:#FBF6EC;font-family:'Jost';font-weight:600;font-size:13px;cursor:pointer;">{{ storeSaveLabel }}</button>
+              <button onClick="{{ cancelStore }}" style="flex:none;padding:14px 22px;border:1px solid rgba(184,137,60,.5);border-radius:26px;background:transparent;color:#8a6526;font-family:'Jost';font-size:13px;cursor:pointer;">Cancelar</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ asistentesList }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:24px;color:#5A4423;">Asistentes</div>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="font-family:'Jost';font-size:12px;color:#9a8559;">Total personas: <strong style="color:#566134;">{{ asisTotal }}</strong></div>
+                <button onClick="{{ downloadCsv }}" style="padding:8px 14px;border:1px solid #566134;border-radius:22px;background:transparent;color:#566134;font-family:'Jost';font-size:11px;letter-spacing:.04em;cursor:pointer;white-space:nowrap;">↓ Descargar CSV</button>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:16px;">
+              <input value="{{ asisName }}" onInput="{{ onAsisName }}" class="fld" placeholder="Nombre(s), separa con comas" style="flex:1;" />
+              <button onClick="{{ addAsistente }}" style="flex:none;padding:11px 18px;border:none;border-radius:24px;background:#566134;color:#FBF6EC;font-family:'Jost';font-weight:500;font-size:12px;cursor:pointer;white-space:nowrap;">+ Agregar</button>
+            </div>
+            <sc-if value="{{ asistentesEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:'Jost';font-size:13px;line-height:1.55;color:#9a8559;background:#FBF6EC;border:1px solid rgba(184,137,60,.26);border-radius:12px;padding:16px;">Aún no hay confirmaciones de asistencia.</div>
+            </sc-if>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <sc-for list="{{ asistentes }}" as="a" hint-placeholder-count="3">
+                <div style="background:#FBF6EC;border:1px solid rgba(184,137,60,.26);border-radius:14px;padding:12px 14px;">
+                  <sc-if value="{{ a.editing }}" hint-placeholder-val="{{ false }}">
+                    <div>
+                      <input value="{{ asisEditVal }}" onInput="{{ onAsisEditVal }}" class="fld" placeholder="Nombres separados por comas" style="margin-bottom:8px;" />
+                      <div style="display:flex;gap:8px;">
+                        <button onClick="{{ saveAsisEdit }}" style="flex:1;padding:9px;border:none;border-radius:22px;background:#566134;color:#FBF6EC;font-family:'Jost';font-size:12px;cursor:pointer;">Guardar</button>
+                        <button onClick="{{ cancelAsisEdit }}" style="flex:none;padding:9px 16px;border:1px solid rgba(184,137,60,.5);border-radius:22px;background:transparent;color:#8a6526;font-family:'Jost';font-size:12px;cursor:pointer;">Cancelar</button>
+                      </div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ a.notEditing }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:flex;align-items:flex-start;gap:13px;">
+                      <div style="flex:1;min-width:0;">
+                        <sc-for list="{{ a.lines }}" as="ln" hint-placeholder-count="1">
+                          <div style="font-family:'Jost';font-weight:500;font-size:15px;color:#3a2f1c;line-height:1.5;">{{ ln }}</div>
+                        </sc-for>
+                        <div style="font-family:'Jost';font-size:11.5px;color:#9a8559;margin-top:3px;">{{ a.meta }}</div>
+                      </div>
+                      <button onClick="{{ a.onEdit }}" style="flex:none;padding:8px 13px;border:1px solid #B8893C;border-radius:22px;background:transparent;color:#8a6526;font-family:'Jost';font-size:11px;cursor:pointer;">Editar</button>
+                      <button onClick="{{ a.onDelete }}" style="flex:none;padding:8px 12px;border:1px solid #c08a7a;border-radius:22px;background:transparent;color:#b3502a;font-family:'Jost';font-size:11px;cursor:pointer;">Eliminar</button>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  SUPA_URL = 'https://sihjxgnbappsmntswmdc.supabase.co';
+  SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpaGp4Z25iYXBwc21udHN3bWRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3NjE5ODksImV4cCI6MjA5ODMzNzk4OX0.OrFc389Ul_s5TyrFwiEdHUUgLhROjTCboV8LklhuNP0';
+
+  state = {
+    cat: 'transporte', bought: {}, modal: null, modalPid: null, waNumber: '', confirmError: '',
+    admin: null, adminUser: null, authEmail: '', authPass: '', authError: '', authBusy: false,
+    dbProducts: null, dbReady: false, dbWarning: '',
+    form: null, formError: '', uploading: false, saving: false,
+    stores: null, adminTab: 'productos', storeForm: null, storeError: '', storeUploading: false, storeSaving: false,
+    asistentes: null, asisName: '', comprasRows: null, asisEdit: null, asisEditVal: ''
+  };
+
+  CATS = [
+    { id: 'transporte', name: 'Transporte', title: 'assets/rt-transporte.png', tr: 7.82, br: 2.26 },
+    { id: 'bano', name: 'Baño', title: 'assets/rt-bano.png', tr: 5.56, br: 1.85 },
+    { id: 'alimentacion', name: 'Alimentación', title: 'assets/rt-alimentacion.png', tr: 8.34, br: 2.15 },
+    { id: 'estimulacion', name: 'Estimulación', title: 'assets/rt-estimulacion.png', tr: 8.74, br: 2.25 },
+    { id: 'ropa', name: 'Ropa', title: 'assets/rt-ropa.png', tr: 5.71, br: 1.66 },
+    { id: 'organizacion', name: 'Complementos', title: 'assets/rt-complementos.png', tr: 8.80, br: 2.232, btnId: 'complementos' }
+  ];
+
+  STORE_DEFS = {
+    falabella: { label: 'falabella', color: '#3DAE2B', fstyle: 'italic' },
+    babyfresh: { label: 'babyfresh', color: '#2B4C9B', fstyle: 'normal' },
+    pepeganga: { label: 'Pepe Ganga', color: '#E2001A', fstyle: 'normal' },
+    amazon:    { label: 'amazon', color: '#232323', fstyle: 'normal' },
+    whatsapp:  { label: 'Comprar por WhatsApp', color: '#1f8a4c', fstyle: 'normal', wa: true }
+  };
+
+  FALLBACK = {
+    transporte: [
+      { name: 'Mochila pañalera premium', foto: '', stores: [{ s: 'falabella', url: '#' }, { s: 'babyfresh', url: '#' }, { s: 'amazon', url: '#' }] },
+      { name: 'Kit para carro (espejo + protector + organizador)', foto: '', stores: [{ s: 'pepeganga', url: '#' }, { s: 'babyfresh', url: '#' }] },
+      { name: 'Silla para carro', foto: '', stores: [{ s: 'falabella', url: '#' }, { s: 'pepeganga', url: '#' }] },
+      { name: 'Coche Travel System', foto: '', stores: [{ s: 'falabella', url: '#' }, { s: 'pepeganga', url: '#' }] },
+      { name: 'Canguro ergonómico', foto: '', stores: [{ s: 'babyfresh', url: '#' }, { s: 'amazon', url: '#' }] },
+      { name: 'Espejo para bebé para carro', foto: '', stores: [{ s: 'amazon', url: '#' }] },
+      { name: 'Protector de asiento para carro', foto: '', stores: [{ s: 'babyfresh', url: '#' }, { s: 'pepeganga', url: '#' }] },
+      { name: 'Organizador de carro con bolsillos', foto: '', stores: [{ s: 'amazon', url: '#' }, { s: 'whatsapp', phone: '573000000000' }] }
+    ],
+    bano: [
+      { name: 'Bañera ergonómica', foto: '', stores: [{ s: 'falabella', url: '#' }, { s: 'pepeganga', url: '#' }] },
+      { name: 'Cojín de baño', foto: '', stores: [{ s: 'babyfresh', url: '#' }] },
+      { name: 'Toallas con capucha', foto: '', stores: [{ s: 'babyfresh', url: '#' }, { s: 'pepeganga', url: '#' }] },
+      { name: 'Juguetes para baño', foto: '', stores: [{ s: 'amazon', url: '#' }] },
+      { name: 'Set de aseo: shampoo, jabón y crema', foto: '', stores: [{ s: 'falabella', url: '#' }] },
+      { name: 'Termómetro de agua', foto: '', stores: [{ s: 'amazon', url: '#' }] },
+      { name: 'Aspirador nasal', foto: '', stores: [{ s: 'pepeganga', url: '#' }] },
+      { name: 'Termómetro digital', foto: '', stores: [{ s: 'falabella', url: '#' }, { s: 'amazon', url: '#' }] }
+    ],
+    alimentacion: [
+      { name: 'Set completo de biberones', foto: '', stores: [{ s: 'babyfresh', url: '#' }, { s: 'pepeganga', url: '#' }] },
+      { name: 'Esterilizador', foto: '', stores: [{ s: 'falabella', url: '#' }] },
+      { name: 'Almohada de lactancia', foto: '', stores: [{ s: 'babyfresh', url: '#' }, { s: 'falabella', url: '#' }] },
+      { name: 'Silla comedor', foto: '', stores: [{ s: 'falabella', url: '#' }, { s: 'pepeganga', url: '#' }] },
+      { name: 'Vajilla premium', foto: '', stores: [{ s: 'babyfresh', url: '#' }] },
+      { name: 'Vasos entrenadores', foto: '', stores: [{ s: 'amazon', url: '#' }] },
+      { name: 'Cubiertos de aprendizaje', foto: '', stores: [{ s: 'amazon', url: '#' }] },
+      { name: 'Bolsas de almacenamiento de leche', foto: '', stores: [{ s: 'pepeganga', url: '#' }] }
+    ],
+    estimulacion: [
+      { name: 'Gimnasio de actividades', foto: '', stores: [{ s: 'falabella', url: '#' }, { s: 'pepeganga', url: '#' }] },
+      { name: 'Sonajeros', foto: '', stores: [{ s: 'babyfresh', url: '#' }] },
+      { name: 'Mordedores', foto: '', stores: [{ s: 'amazon', url: '#' }] },
+      { name: 'Libros sensoriales', foto: '', stores: [{ s: 'amazon', url: '#' }] },
+      { name: 'Móvil musical', foto: '', stores: [{ s: 'pepeganga', url: '#' }] },
+      { name: 'Espejo Montessori', foto: '', stores: [{ s: 'falabella', url: '#' }] },
+      { name: 'Cubos apilables', foto: '', stores: [{ s: 'babyfresh', url: '#' }] },
+      { name: 'Rompecabezas blandos', foto: '', stores: [{ s: 'amazon', url: '#' }] }
+    ],
+    ropa: [
+      { name: 'Bodies x6', foto: '', stores: [{ s: 'babyfresh', url: '#' }, { s: 'falabella', url: '#' }] },
+      { name: 'Pijamas x3', foto: '', stores: [{ s: 'pepeganga', url: '#' }, { s: 'babyfresh', url: '#' }] },
+      { name: 'Medias y mitones', foto: '', stores: [{ s: 'babyfresh', url: '#' }] },
+      { name: 'Gorritos', foto: '', stores: [{ s: 'amazon', url: '#' }] },
+      { name: 'Conjuntos de salida', foto: '', stores: [{ s: 'falabella', url: '#' }] },
+      { name: 'Cobija de algodón', foto: '', stores: [{ s: 'babyfresh', url: '#' }] },
+      { name: 'Sábanas impermeables', foto: '', stores: [{ s: 'pepeganga', url: '#' }] },
+      { name: 'Juego completo de sábanas', foto: '', stores: [{ s: 'falabella', url: '#' }] }
+    ],
+    organizacion: [
+      { name: 'Organizador decorativo', foto: '', stores: [{ s: 'babyfresh', url: '#' }] },
+      { name: 'Cesto para ropa', foto: '', stores: [{ s: 'amazon', url: '#' }] },
+      { name: 'Humidificador', foto: '', stores: [{ s: 'falabella', url: '#' }] },
+      { name: 'Luz nocturna inteligente', foto: '', stores: [{ s: 'amazon', url: '#' }, { s: 'babyfresh', url: '#' }] },
+      { name: 'Lámpara infantil', foto: '', stores: [{ s: 'pepeganga', url: '#' }] },
+      { name: 'Closet organizador', foto: '', stores: [{ s: 'falabella', url: '#' }] },
+      { name: 'Monitor para bebé con cámara', foto: '', stores: [{ s: 'falabella', url: '#' }, { s: 'pepeganga', url: '#' }] },
+      { name: 'Moisés + base', foto: '', stores: [{ s: 'pepeganga', url: '#' }, { s: 'whatsapp', phone: '573000000000' }] }
+    ]
+  };
+
+  componentDidMount() {
+    try { this.setState({ bought: JSON.parse(localStorage.getItem('emiliano_gifts_bought') || '{}') || {} }); } catch (e) {}
+    setTimeout(() => this.setupReveals(), 60);
+    this._robust = setTimeout(() => {
+      if ((document.timeline.currentTime || 0) < 1) {
+        let k = document.getElementById('reveal-kill');
+        if (!k) { k = document.createElement('style'); k.id = 'reveal-kill'; k.textContent = '[data-reveal]{transition:none !important}'; document.head.appendChild(k); }
+        document.querySelectorAll('[data-reveal]').forEach(el => el.classList.add('is-in'));
+      }
+    }, 700);
+    this.initSupa();
+  }
+
+  async initSupa() {
+    let tries = 0;
+    while (!(window.supabase && window.supabase.createClient) && tries < 60) { await new Promise(r => setTimeout(r, 100)); tries++; }
+    if (!(window.supabase && window.supabase.createClient)) return;
+    try {
+      this.sb = window.supabase.createClient(this.SUPA_URL, this.SUPA_KEY);
+      const sess = await this.sb.auth.getSession();
+      this.setState({ adminUser: (sess && sess.data && sess.data.session) ? sess.data.session.user : null });
+      await this.refreshAll();
+      try {
+        this.sb.channel('rt').on('postgres_changes', { event: '*', schema: 'public', table: 'compras' }, () => this.refreshCompras())
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'productos' }, () => this.refreshProducts()).subscribe();
+      } catch (e) {}
+    } catch (e) {}
+  }
+
+  async refreshAll() { await this.refreshStores(); await this.refreshProducts(); await this.refreshCompras(); await this.refreshAsistentes(); }
+
+  async refreshAsistentes() {
+    if (!this.sb) return;
+    const res = await this.sb.from('asistentes').select('*').order('created_at', { ascending: true });
+    if (res.error) { this.setState({ asistentes: null }); return; }
+    this.setState({ asistentes: res.data || [] });
+  }
+
+  async addAsistente() {
+    const n = (this.state.asisName || '').trim();
+    if (!n || !this.sb) return;
+    const names = n.split(',').map(x => x.trim()).filter(Boolean);
+    await this.sb.from('asistentes').insert({ nombres: names, total: names.length });
+    await this.refreshAsistentes();
+    this.setState({ asisName: '' });
+  }
+
+  downloadAsistentesCsv() {
+    const rows = this.state.asistentes || [];
+    let csv = '\uFEFFNombre,Fecha\n';
+    rows.forEach(a => {
+      const nombres = Array.isArray(a.nombres) ? a.nombres : [a.nombres || a.nombre || ''];
+      const fecha = a.created_at ? new Date(a.created_at).toLocaleString('es-CO') : '';
+      nombres.forEach(nm => {
+        csv += '"' + String(nm).replace(/"/g, '""') + '","' + fecha + '"\n';
+      });
+    });
+    try {
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'asistentes-emiliano.csv';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (e) {}
+  }
+
+  async deleteAsistente(row) {
+    if (!this.sb) return;
+    if (!window.confirm('¿Eliminar este registro de asistencia?')) return;
+    await this.sb.from('asistentes').delete().eq('id', row.id);
+    await this.refreshAsistentes();
+  }
+
+  editAsistente(row) {
+    const names = Array.isArray(row.nombres) ? row.nombres.join(', ') : (row.nombres || row.nombre || '');
+    this.setState({ asisEdit: row.id, asisEditVal: names });
+  }
+
+  async saveAsistenteEdit() {
+    if (!this.sb) return;
+    const names = (this.state.asisEditVal || '').split(',').map(x => x.trim()).filter(Boolean);
+    if (!names.length) return;
+    await this.sb.from('asistentes').update({ nombres: names, total: names.length }).eq('id', this.state.asisEdit);
+    this.setState({ asisEdit: null, asisEditVal: '' });
+    await this.refreshAsistentes();
+  }
+
+  async unmarkCompra(pid) {
+    if (!this.sb) return;
+    if (!window.confirm('¿Quitar este producto del estado "comprado"?')) return;
+    await this.sb.from('compras').delete().eq('producto_id', pid);
+    await this.refreshCompras();
+  }
+
+  async refreshStores() {
+    if (!this.sb) return;
+    const res = await this.sb.from('tiendas').select('*').order('orden', { ascending: true });
+    if (res.error) { this.setState({ stores: null }); return; }
+    this.setState({ stores: res.data || [] });
+  }
+
+  newStore() { this.setState({ storeForm: { id: null, nombre: '', logo: '' }, storeError: '' }); }
+  editStore(s) { this.setState({ storeForm: { id: s.id, nombre: s.nombre, logo: s.logo || '' }, storeError: '' }); }
+  async deleteStore(s) {
+    if (!this.sb) return;
+    if (!window.confirm('¿Eliminar la tienda "' + s.nombre + '"?')) return;
+    await this.sb.from('tiendas').delete().eq('id', s.id);
+    await this.refreshStores();
+  }
+  setStoreForm(patch) { this.setState(st => ({ storeForm: Object.assign({}, st.storeForm, patch) })); }
+
+  async onStoreLogo(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file || !this.sb) return;
+    this.setState({ storeUploading: true });
+    const path = 'logos/' + Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9._-]/g, '');
+    const up = await this.sb.storage.from('productos').upload(path, file, { upsert: true });
+    if (up.error) { this.setState({ storeUploading: false, storeError: 'No se pudo subir el logo: ' + up.error.message }); return; }
+    const pub = this.sb.storage.from('productos').getPublicUrl(path);
+    this.setStoreForm({ logo: pub.data.publicUrl });
+    this.setState({ storeUploading: false });
+  }
+
+  async saveStore() {
+    const f = this.state.storeForm;
+    if (!f.nombre.trim()) { this.setState({ storeError: 'El nombre es obligatorio.' }); return; }
+    if (!this.sb) { this.setState({ storeError: 'Conexión no disponible.' }); return; }
+    this.setState({ storeSaving: true, storeError: '' });
+    const row = { nombre: f.nombre.trim(), logo: f.logo || '', orden: Date.now() };
+    let res;
+    if (f.id) res = await this.sb.from('tiendas').update(row).eq('id', f.id);
+    else res = await this.sb.from('tiendas').insert(row);
+    if (res.error) { this.setState({ storeSaving: false, storeError: 'Error al guardar: ' + res.error.message }); return; }
+    await this.refreshStores();
+    this.setState({ storeSaving: false, storeForm: null });
+  }
+
+  async refreshProducts() {
+    if (!this.sb) return;
+    const res = await this.sb.from('productos').select('*').order('orden', { ascending: true });
+    if (res.error) { this.setState({ dbProducts: null, dbReady: true }); return; }
+    const grouped = {};
+    (res.data || []).forEach(r => { (grouped[r.categoria] = grouped[r.categoria] || []).push(r); });
+    this.setState({ dbProducts: grouped, dbReady: true });
+  }
+
+  async refreshCompras() {
+    if (!this.sb) return;
+    const res = await this.sb.from('compras').select('producto_id');
+    if (res.error) return;
+    const m = {};
+    (res.data || []).forEach(r => { m[r.producto_id] = true; });
+    this.setState({ bought: m });
+  }
+
+  openBuy(pid) { this.setState({ modal: 'buy', modalPid: pid }); }
+  openConfirm(pid) { this.setState({ modal: 'confirm', modalPid: pid, waNumber: '', confirmError: '' }); }
+  closeModal() { this.setState({ modal: null, modalPid: null, confirmError: '' }); }
+
+  async confirmPurchase() {
+    const digits = (this.state.waNumber || '').replace(/\D/g, '');
+    if (digits.length < 10) { this.setState({ confirmError: 'Ingresa un número de WhatsApp válido.' }); return; }
+    const pid = this.state.modalPid;
+    const isUuid = this.state.dbProducts && /[0-9a-f-]{20,}/.test(pid);
+    if (this.sb && isUuid) {
+      this.setState({ confirmError: '' });
+      const res = await this.sb.from('compras').insert({ producto_id: pid, whatsapp: '57' + digits });
+      if (res.error) { this.setState({ confirmError: 'No se pudo registrar. Intenta de nuevo.' }); return; }
+      await this.refreshCompras();
+      this.setState({ modal: null, modalPid: null, waNumber: '' });
+    } else {
+      this.setState(s => {
+        const b = Object.assign({}, s.bought); b[pid] = true;
+        try { localStorage.setItem('emiliano_gifts_bought', JSON.stringify(b)); } catch (e) {}
+        return { bought: b, modal: null, modalPid: null, waNumber: '', confirmError: '' };
+      });
+    }
+  }
+
+  // ----- ADMIN -----
+  openAdmin() { this.setState({ admin: this.state.adminUser ? 'panel' : 'login', authError: '' }); }
+  closeAdmin() { this.setState({ admin: null, form: null, authError: '', formError: '' }); }
+
+  async doLogin() {
+    if (!this.sb) { this.setState({ authError: 'Conexión no disponible.' }); return; }
+    this.setState({ authBusy: true, authError: '' });
+    const res = await this.sb.auth.signInWithPassword({ email: this.state.authEmail.trim(), password: this.state.authPass });
+    if (res.error) { this.setState({ authBusy: false, authError: res.error.message }); return; }
+    this.setState({ authBusy: false, adminUser: res.data.user, admin: 'panel', authPass: '' });
+  }
+
+  async doSignup() {
+    if (!this.sb) { this.setState({ authError: 'Conexión no disponible.' }); return; }
+    if (!this.state.authEmail.trim() || this.state.authPass.length < 6) { this.setState({ authError: 'Ingresa correo y una contraseña de al menos 6 caracteres.' }); return; }
+    this.setState({ authBusy: true, authError: '' });
+    const res = await this.sb.auth.signUp({ email: this.state.authEmail.trim(), password: this.state.authPass });
+    if (res.error) { this.setState({ authBusy: false, authError: res.error.message }); return; }
+    if (res.data && res.data.session) { this.setState({ authBusy: false, adminUser: res.data.user, admin: 'panel', authPass: '' }); }
+    else { this.setState({ authBusy: false, authError: 'Cuenta creada. Revisa tu correo para confirmarla y luego inicia sesión.' }); }
+  }
+
+  async doLogout() { if (this.sb) await this.sb.auth.signOut(); this.setState({ adminUser: null, admin: null, form: null }); }
+
+  newProduct() { this.setState({ form: { id: null, categoria: this.state.cat, nombre: '', foto: '', stores: [{ store: 'falabella', value: '' }] }, formError: '' }); }
+
+  editProduct(p) {
+    const stores = (p.stores || []).map(st => {
+      const key = st.s || st.store;
+      if (key === 'whatsapp') return { store: 'whatsapp', value: st.phone || '', customName: '' };
+      if (st.tienda_id) return { store: 'db:' + st.tienda_id, value: st.url && st.url !== '#' ? st.url : '', customName: '' };
+      return { store: key, value: st.url && st.url !== '#' ? st.url : '', customName: '' };
+    });
+    this.setState({ form: { id: p.id, categoria: p.categoria, nombre: p.nombre, foto: p.foto || '', stores: stores.length ? stores : [{ store: 'falabella', value: '' }] }, formError: '' });
+  }
+
+  async deleteProduct(p) {
+    if (!this.sb) return;
+    if (!window.confirm('¿Eliminar "' + p.nombre + '"?')) return;
+    await this.sb.from('productos').delete().eq('id', p.id);
+    await this.refreshProducts();
+  }
+
+  setForm(patch) { this.setState(s => ({ form: Object.assign({}, s.form, patch) })); }
+  addStore() { this.setState(s => ({ form: Object.assign({}, s.form, { stores: s.form.stores.concat([{ store: 'falabella', value: '' }]) }) })); }
+  removeStore(i) { this.setState(s => { const st = s.form.stores.slice(); st.splice(i, 1); return { form: Object.assign({}, s.form, { stores: st }) }; }); }
+  setStore(i, k, v) { this.setState(s => { const st = s.form.stores.slice(); st[i] = Object.assign({}, st[i], { [k]: v }); return { form: Object.assign({}, s.form, { stores: st }) }; }); }
+
+  async onPhotoFile(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file || !this.sb) return;
+    this.setState({ uploading: true });
+    const path = Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9._-]/g, '');
+    const up = await this.sb.storage.from('productos').upload(path, file, { upsert: true });
+    if (up.error) { this.setState({ uploading: false, formError: 'No se pudo subir la foto: ' + up.error.message }); return; }
+    const pub = this.sb.storage.from('productos').getPublicUrl(path);
+    this.setForm({ foto: pub.data.publicUrl });
+    this.setState({ uploading: false });
+  }
+
+  async saveProduct() {
+    const f = this.state.form;
+    if (!f.nombre.trim()) { this.setState({ formError: 'El nombre es obligatorio.' }); return; }
+    if (!this.sb) { this.setState({ formError: 'Conexión no disponible.' }); return; }
+    const stores = f.stores.filter(t => t.store).map(t => {
+      if (t.store === 'whatsapp') return { s: 'whatsapp', phone: (t.value || '').replace(/\D/g, '') };
+      if (t.store.indexOf('db:') === 0) return { tienda_id: t.store.slice(3), url: t.value || '#' };
+      return { s: t.store, url: t.value || '#' };
+    });
+    const row = { categoria: f.categoria, nombre: f.nombre.trim(), foto: f.foto || '', stores: stores, orden: Date.now() };
+    this.setState({ saving: true, formError: '' });
+    let res;
+    if (f.id) { res = await this.sb.from('productos').update(row).eq('id', f.id); }
+    else { res = await this.sb.from('productos').insert(row); }
+    if (res.error) { this.setState({ saving: false, formError: 'Error al guardar: ' + res.error.message }); return; }
+    await this.refreshProducts();
+    this.setState({ saving: false, form: null, cat: f.categoria });
+  }
+
+  selectCat(id) {
+    this.setState({ cat: id });
+    setTimeout(() => {
+      const el = document.querySelector('.prod-grid');
+      if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 150, behavior: 'smooth' });
+      this.setupReveals();
+    }, 40);
+  }
+
+  setupReveals() {
+    const els = Array.from(document.querySelectorAll('[data-reveal]'));
+    const reveal = () => {
+      const vh = window.innerHeight || 800;
+      for (const el of els) {
+        if (el.classList.contains('is-in')) continue;
+        const r = el.getBoundingClientRect();
+        if (r.top < vh * 0.94 && r.bottom > -40) el.classList.add('is-in');
+      }
+    };
+    reveal();
+    if (!this._rb) { this._rb = true; window.addEventListener('scroll', () => requestAnimationFrame(reveal), { passive: true }); window.addEventListener('resize', reveal); }
+  }
+
+  storeView(st) {
+    const key = st.s || st.store;
+    if (key === 'whatsapp') {
+      const url = 'https://wa.me/' + (st.phone || '') + '?text=' + encodeURIComponent('Hola, quiero comprar un regalo para el Baby Shower de Emiliano 🦁');
+      return { label: 'Comprar por WhatsApp', color: '#1f8a4c', fstyle: 'normal', url: url, logo: '', hasLogo: false, noLogo: true };
+    }
+    if (st.tienda_id) {
+      const s = (this.state.stores || []).find(x => x.id === st.tienda_id);
+      const nombre = s ? s.nombre : 'Tienda';
+      const logo = s ? (s.logo || '') : '';
+      return { label: nombre, color: '#7a5f33', fstyle: 'normal', url: st.url || '#', logo: logo, logoBg: logo ? "url('" + logo + "')" : 'none', hasLogo: !!logo, noLogo: !logo };
+    }
+    const def = this.STORE_DEFS[key] || { label: st.label || key, color: '#7a5f33', fstyle: 'normal' };
+    const match = (this.state.stores || []).find(s => s.nombre && s.nombre.toLowerCase() === (def.label || key).toLowerCase());
+    if (match && match.logo) return { label: match.nombre, color: '#7a5f33', fstyle: 'normal', url: st.url || '#', logo: match.logo, logoBg: "url('" + match.logo + "')", hasLogo: true, noLogo: false };
+    return { label: def.label, color: def.color, fstyle: def.fstyle, url: st.url || '#', logo: '', hasLogo: false, noLogo: true };
+  }
+
+  catProducts(cat) {
+    if (this.state.dbProducts) return (this.state.dbProducts[cat] || []).map(r => ({ id: r.id, categoria: r.categoria, nombre: r.nombre, foto: r.foto || '', stores: r.stores || [], key: r.id }));
+    return (this.FALLBACK[cat] || []).map((p, i) => ({ id: null, categoria: cat, nombre: p.name, foto: p.foto || '', stores: p.stores || [], key: cat + '-' + i }));
+  }
+
+  renderVals() {
+    const cat = this.state.cat;
+    const bought = this.state.bought || {};
+    const categories = this.CATS.map(c => ({
+      name: c.name,
+      bg: "url('assets/btn-" + (c.btnId || c.id) + (c.id === cat ? '-on' : '-off') + ".png')",
+      ratio: c.br,
+      size: 'contain',
+      pos: 'center',
+      hstyle: '',
+      onSelect: () => this.selectCat(c.id)
+    }));
+    const active = this.CATS.find(c => c.id === cat) || this.CATS[0];
+    const list = this.catProducts(cat);
+    const products = list.map(p => {
+      const isBought = !!bought[p.key];
+      return {
+        name: p.nombre, key: p.key, bought: isBought, available: !isBought,
+        statusLabel: isBought ? 'Comprado' : 'Disponible',
+        dotColor: isBought ? '#566134' : '#6f8a3f',
+        cardBg: isBought ? '#EDEFE0' : '#FBF6EC',
+        cardBorder: isBought ? 'rgba(86,97,52,.45)' : 'rgba(184,137,60,.26)',
+        fotoBg: p.foto ? "url('" + p.foto + "')" : 'none',
+        noFoto: !p.foto,
+        onBuy: () => this.openBuy(p.key),
+        onPrepare: () => this.openConfirm(p.key)
+      };
+    });
+
+    // modal product lookup
+    let modalName = '', modalStores = [], modalFotoBg = 'none';
+    if (this.state.modalPid) {
+      const all = this.catProducts(cat).concat(this.CATS.flatMap(c => c.id !== cat ? this.catProducts(c.id) : []));
+      const mp = all.find(x => x.key === this.state.modalPid);
+      if (mp) { modalName = mp.nombre; modalStores = (mp.stores || []).map(st => this.storeView(st)); modalFotoBg = mp.foto ? "url('" + mp.foto + "')" : 'none'; }
+    }
+
+    // admin views
+    const adminMode = this.state.admin;
+    const f = this.state.form;
+    let storeOptions;
+    if (this.state.stores && this.state.stores.length) storeOptions = this.state.stores.map(s => ({ id: 'db:' + s.id, label: s.nombre }));
+    else storeOptions = Object.keys(this.STORE_DEFS).filter(k => k !== 'whatsapp').map(id => ({ id, label: this.STORE_DEFS[id].label }));
+    storeOptions = storeOptions.concat([{ id: 'whatsapp', label: 'Comprar por WhatsApp' }]);
+    const adminCats = this.CATS.map(c => ({ name: c.name, onSelect: () => this.setState({ cat: c.id }), bg: c.id === cat ? '#566134' : 'transparent', color: c.id === cat ? '#FBF6EC' : '#8a6526', border: c.id === cat ? '#566134' : 'rgba(184,137,60,.45)' }));
+    const adminProducts = this.catProducts(cat).map(p => ({
+      name: p.nombre,
+      bought: !!this.state.bought[p.key],
+      onUnmark: () => this.unmarkCompra(p.key),
+      fotoBg: p.foto ? "url('" + p.foto + "')" : 'none',
+      storesLabel: (p.stores || []).map(s => (this.STORE_DEFS[s.s || s.store] || {}).label || (s.s || s.store)).join(' · ') || 'Sin tiendas',
+      onEdit: () => this.editProduct(p),
+      onDelete: () => this.deleteProduct(p)
+    }));
+
+    let fStores = [];
+    if (f) fStores = f.stores.map((t, i) => ({ store: t.store, value: t.value, customName: t.customName || '', isCustom: t.store === 'otra', placeholder: t.store === 'whatsapp' ? 'Número WhatsApp (ej. 573001234567)' : 'Enlace del producto (https://...)', onStore: (e) => this.setStore(i, 'store', e.target.value), onValue: (e) => this.setStore(i, 'value', e.target.value), onCustom: (e) => this.setStore(i, 'customName', e.target.value), onRemove: () => this.removeStore(i) }));
+
+    return {
+      categories,
+      activeTitleBg: "url('" + active.title + "')",
+      activeTitleRatio: active.tr,
+      activeName: active.name,
+      products,
+      buyOpen: this.state.modal === 'buy',
+      confirmOpen: this.state.modal === 'confirm',
+      modalName, modalStores, modalFotoBg,
+      waNumber: this.state.waNumber,
+      confirmError: this.state.confirmError,
+      confirmBtnLabel: 'Confirmar compra',
+      onWa: (e) => this.setState({ waNumber: e.target.value }),
+      stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); },
+      closeModal: () => this.closeModal(),
+      confirmPurchase: () => this.confirmPurchase(),
+      // admin
+      openAdmin: () => this.openAdmin(),
+      closeAdmin: () => this.closeAdmin(),
+      loginOpen: adminMode === 'login',
+      panelOpen: adminMode === 'panel',
+      authEmail: this.state.authEmail,
+      authPass: this.state.authPass,
+      authError: this.state.authError,
+      loginBtnLabel: this.state.authBusy ? 'Entrando…' : 'Entrar',
+      onEmail: (e) => this.setState({ authEmail: e.target.value }),
+      onPass: (e) => this.setState({ authPass: e.target.value }),
+      doLogin: () => this.doLogin(),
+      doSignup: () => this.doSignup(),
+      doLogout: () => this.doLogout(),
+      dbWarning: (adminMode === 'panel' && this.state.dbReady && !this.state.dbProducts) ? 'La base de datos aún no tiene las tablas. Estás viendo el catálogo de ejemplo (solo lectura). Crea las tablas en Supabase para guardar cambios.' : '',
+      adminTab: this.state.adminTab,
+      tabProductos: () => this.setState({ adminTab: 'productos' }),
+      tabTiendas: () => this.setState({ adminTab: 'tiendas' }),
+      tabAsistentes: () => { this.setState({ adminTab: 'asistentes' }); this.refreshAsistentes(); },
+      tabABg: this.state.adminTab === 'asistentes' ? '#566134' : 'transparent',
+      tabAC: this.state.adminTab === 'asistentes' ? '#FBF6EC' : '#8a6526',
+      tabAB: this.state.adminTab === 'asistentes' ? '#566134' : 'rgba(184,137,60,.45)',
+      asistentesList: adminMode === 'panel' && this.state.adminTab === 'asistentes',
+      asistentesEmpty: !(this.state.asistentes && this.state.asistentes.length),
+      asisName: this.state.asisName,
+      onAsisName: (e) => this.setState({ asisName: e.target.value }),
+      addAsistente: () => this.addAsistente(),
+      downloadCsv: () => this.downloadAsistentesCsv(),
+      asisTotal: (this.state.asistentes || []).reduce((s, a) => s + (a.total || (a.nombres ? a.nombres.length : 1)), 0),
+      asistentes: (this.state.asistentes || []).map(a => ({
+        lines: Array.isArray(a.nombres) ? a.nombres : [a.nombres || a.nombre || 'Invitado'],
+        meta: (a.total || (a.nombres ? a.nombres.length : 1)) + ' persona(s)' + (a.created_at ? ' · ' + new Date(a.created_at).toLocaleDateString('es-CO') : ''),
+        editing: this.state.asisEdit === a.id,
+        notEditing: this.state.asisEdit !== a.id,
+        onEdit: () => this.editAsistente(a),
+        onDelete: () => this.deleteAsistente(a)
+      })),
+      asisEditVal: this.state.asisEditVal,
+      onAsisEditVal: (e) => this.setState({ asisEditVal: e.target.value }),
+      saveAsisEdit: () => this.saveAsistenteEdit(),
+      cancelAsisEdit: () => this.setState({ asisEdit: null, asisEditVal: '' }),
+      tabPBg: this.state.adminTab === 'productos' ? '#566134' : 'transparent',
+      tabPC: this.state.adminTab === 'productos' ? '#FBF6EC' : '#8a6526',
+      tabPB: this.state.adminTab === 'productos' ? '#566134' : 'rgba(184,137,60,.45)',
+      tabTBg: this.state.adminTab === 'tiendas' ? '#566134' : 'transparent',
+      tabTC: this.state.adminTab === 'tiendas' ? '#FBF6EC' : '#8a6526',
+      tabTB: this.state.adminTab === 'tiendas' ? '#566134' : 'rgba(184,137,60,.45)',
+      adminList: adminMode === 'panel' && this.state.adminTab === 'productos' && !f,
+      adminForm: adminMode === 'panel' && this.state.adminTab === 'productos' && !!f,
+      tiendasList: adminMode === 'panel' && this.state.adminTab === 'tiendas' && !this.state.storeForm,
+      tiendasForm: adminMode === 'panel' && this.state.adminTab === 'tiendas' && !!this.state.storeForm,
+      tiendas: (this.state.stores || []).map(s => ({ nombre: s.nombre, logoBg: s.logo ? "url('" + s.logo + "')" : 'none', onEdit: () => this.editStore(s), onDelete: () => this.deleteStore(s) })),
+      storesEmpty: !(this.state.stores && this.state.stores.length),
+      newStore: () => this.newStore(),
+      storeFormTitle: (this.state.storeForm && this.state.storeForm.id) ? 'Editar tienda' : 'Nueva tienda',
+      sNombre: this.state.storeForm ? this.state.storeForm.nombre : '',
+      sLogoBg: (this.state.storeForm && this.state.storeForm.logo) ? "url('" + this.state.storeForm.logo + "')" : 'none',
+      storeUploadLabel: this.state.storeUploading ? 'Subiendo…' : 'Subir logo',
+      storeError: this.state.storeError,
+      storeSaveLabel: this.state.storeSaving ? 'Guardando…' : 'Guardar tienda',
+      onSNombre: (e) => this.setStoreForm({ nombre: e.target.value }),
+      onStoreLogo: (e) => this.onStoreLogo(e),
+      saveStore: () => this.saveStore(),
+      cancelStore: () => this.setState({ storeForm: null, storeError: '' }),
+      adminCats, adminProducts,
+      newProduct: () => this.newProduct(),
+      formTitle: f && f.id ? 'Editar producto' : 'Nuevo producto',
+      fNombre: f ? f.nombre : '',
+      fCat: f ? f.categoria : cat,
+      fFotoBg: (f && f.foto) ? "url('" + f.foto + "')" : 'none',
+      uploadLabel: this.state.uploading ? 'Subiendo…' : 'Subir foto',
+      catOptions: this.CATS.map(c => ({ id: c.id, name: c.name })),
+      storeOptions, fStores,
+      formError: this.state.formError,
+      saveLabel: this.state.saving ? 'Guardando…' : 'Guardar producto',
+      onFNombre: (e) => this.setForm({ nombre: e.target.value }),
+      onFCat: (e) => this.setForm({ categoria: e.target.value }),
+      onPhotoFile: (e) => this.onPhotoFile(e),
+      addStore: () => this.addStore(),
+      saveProduct: () => this.saveProduct(),
+      cancelForm: () => this.setState({ form: null, formError: '' })
+    };
+  }
+}
+</script>
+</body>
+</html>

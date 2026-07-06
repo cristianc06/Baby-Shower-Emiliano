@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+html,body{margin:0;padding:0;background:#F2E7CE}
+img{user-select:none;-webkit-user-drag:none}
+[data-reveal]{opacity:0;transform:translateY(26px);transition:opacity 1s cubic-bezier(.2,.7,.2,1),transform 1s cubic-bezier(.2,.7,.2,1)}
+[data-reveal].is-in{opacity:1 !important;transform:none !important}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-13px)}}
+@keyframes floatYsm{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes fadeup{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:none}}
+@keyframes cuemove{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(9px);opacity:1}}
+@keyframes glowpulse{0%,100%{filter:drop-shadow(0 6px 18px rgba(150,110,40,.25))}50%{filter:drop-shadow(0 8px 30px rgba(220,180,90,.45))}}
+@keyframes sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+@keyframes swayR{0%,100%{transform:rotate(4deg)}50%{transform:rotate(-4deg)}}
+section,footer{position:relative}
+@media(max-width:640px){
+  .cd-inner{transform:none !important}
+  .cd-boxes{flex-wrap:wrap !important;max-width:280px}
+  .cd-boxes>div{width:122px !important}
+  .cd-boxes #cd-d,.cd-boxes #cd-h,.cd-boxes #cd-m,.cd-boxes #cd-s{font-size:34px !important}
+  .cd-boxes div[style*="letter-spacing:.1em"]{font-size:9px !important}
+  .cd-lion{width:150px !important;left:auto !important;right:6px !important;bottom:-34px !important}
+  section[data-screen-label="Cuenta regresiva"]{padding-bottom:64px !important}
+}
+@media(max-width:640px){
+  .story-row{flex-wrap:nowrap !important;overflow-x:auto;justify-content:flex-start !important;gap:12px !important;padding:8px 4px 12px !important;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
+  .story-row::-webkit-scrollbar{display:none}
+  .story-row .story-card{flex:0 0 38vw !important;max-width:170px !important}
+  .msg-cta{width:min(49%,176px) !important}
+  .det-section{height:auto !important;padding:30px 16px 36px !important;flex-direction:column !important}
+  .det-col{transform:none !important;width:100%}
+  .det-boxes{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+  .det-lion{position:static !important;display:block !important;margin:18px auto 0 !important;width:150px !important}
+  .hero-bg{background-image:url('assets/hero-bg-mobile.png') !important}
+  .only-desktop{display:none !important}
+  .only-mobile{display:block !important}
+  .footer-text{width:58% !important;top:40% !important;bottom:auto !important;transform:translateY(-50%) !important;align-items:flex-start !important;justify-content:flex-start !important;padding:0 0 0 6% !important}
+  .footer-text>div>img{max-width:235px !important}
+  .footer-glow{width:185% !important;height:200% !important;filter:blur(16px) !important;background:radial-gradient(ellipse at center,rgba(255,254,250,.99) 0%,rgba(255,252,244,.9) 38%,rgba(255,250,238,0) 70%) !important}
+  .hero-glow{width:138% !important;height:122% !important;filter:blur(10px) !important;background:radial-gradient(ellipse at center,rgba(255,254,250,.98) 0%,rgba(255,252,244,.82) 46%,rgba(255,250,238,0) 76%) !important}
+}
+.only-mobile{display:none}
+.hero-lion-wrap{display:flex;justify-content:center;margin-top:20px}
+@media(min-width:880px){.hero-lion-wrap{position:absolute;right:0;bottom:5%;margin-top:0;z-index:2}}
+@keyframes cardFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.story-anim{animation:cardFloat 4.6s ease-in-out infinite;will-change:transform}
+.story-card:nth-child(1) .story-anim{animation-delay:0s}
+.story-card:nth-child(2) .story-anim{animation-delay:.5s}
+.story-card:nth-child(3) .story-anim{animation-delay:1s}
+.story-card:nth-child(4) .story-anim{animation-delay:1.5s}
+.story-card:nth-child(5) .story-anim{animation-delay:2s}
+.story-card{cursor:pointer}
+.story-card:hover .story-anim{animation-play-state:paused;transform:translateY(-14px) scale(1.04) !important;transition:transform .45s cubic-bezier(.2,.7,.2,1);filter:drop-shadow(0 14px 26px rgba(120,90,40,.3))}
+</style>
+</helmet>
+
+<div style="font-family:'Jost',sans-serif;color:#5A4423;background:linear-gradient(180deg,#F0DFB8 0%,#F2E3BC 11%,#EAD6A6 23%,#F1E1B4 35%,#E8D49E 48%,#EFDCAC 60%,#E7D29A 71%,#E2C98C 82%,#DBBE7C 92%,#CFAE66 100%);overflow-x:hidden;position:relative;width:100%;">
+
+  <!-- ===== SOUND TOGGLE ===== -->
+  <button onClick="{{ toggleSound }}" aria-label="sonido" style="position:fixed;top:14px;left:14px;z-index:400;display:flex;align-items:center;gap:7px;height:36px;padding:0 14px;border:1px solid rgba(184,137,60,.5);border-radius:30px;background:rgba(251,247,238,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#8a6526;font-family:'Jost';font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 14px rgba(120,90,40,.14);">
+    <span style="font-size:13px;line-height:1;">{{ soundGlyph }}</span><span>{{ soundLabel }}</span>
+  </button>
+
+  <!-- ===== AMBIENT CONTINUOUS LAYERS ===== -->
+  <canvas id="dust" aria-hidden="true" style="position:fixed;inset:0;z-index:5;width:100%;height:100%;pointer-events:none;"></canvas>
+  <img src="assets/leaf-monstera.png" aria-hidden="true" style="position:fixed;top:-22px;right:-26px;width:clamp(76px,15vw,118px);height:auto;opacity:.3;transform-origin:top right;animation:sway 11s ease-in-out infinite;z-index:6;pointer-events:none;" />
+  <img src="assets/leaf-palm.png" aria-hidden="true" style="position:fixed;bottom:-30px;left:-30px;width:clamp(76px,15vw,118px);height:auto;opacity:.28;transform-origin:bottom left;animation:swayR 13s ease-in-out infinite;z-index:6;pointer-events:none;" />
+
+  <!-- ===== 1 · HERO ===== -->
+  <section data-screen-label="Hero" style="position:relative;z-index:2;min-height:96svh;display:flex;align-items:center;justify-content:center;padding:64px 22px 70px;box-shadow:0 22px 46px rgba(28,18,6,.5),0 6px 16px rgba(28,18,6,.32);">
+    <div class="hero-bg" style="position:absolute;inset:0;z-index:0;overflow:hidden;background:url('assets/hero-bg.png') center/cover no-repeat;"></div>
+    <div style="position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(245,232,196,.16) 0%,rgba(245,232,196,.02) 36%,rgba(242,228,188,.06) 72%,rgba(240,223,184,.16) 100%);pointer-events:none;"></div>
+
+    <!-- hero content -->
+    <div style="position:relative;z-index:3;width:100%;max-width:1080px;display:flex;flex-direction:column;align-items:center;">
+      <div style="position:relative;text-align:center;display:flex;flex-direction:column;align-items:center;margin-top:clamp(-44px,-5vw,-16px);animation:fadeup 1.3s ease both;">
+        <div aria-hidden="true" class="hero-glow" style="position:absolute;top:54%;left:50%;transform:translate(-50%,-50%);width:164%;height:150%;background:radial-gradient(ellipse at center,rgba(255,253,247,.94) 0%,rgba(255,250,240,.58) 40%,rgba(255,248,232,0) 72%);pointer-events:none;z-index:0;filter:blur(7px);"></div>
+        <div style="position:relative;display:flex;flex-direction:column;align-items:center;">
+          <div aria-hidden="true" style="position:absolute;top:48%;left:50%;transform:translate(-50%,-50%);width:130%;height:124%;background:radial-gradient(ellipse at center,rgba(255,252,243,.95) 0%,rgba(255,250,236,.62) 36%,rgba(255,248,230,0) 70%);pointer-events:none;"></div>
+          <img src="assets/emblema.png" alt="Emiliano Baby Shower — Un pequeño rey viene en camino" style="position:relative;width:clamp(250px,60vw,380px);height:auto;animation:glowpulse 5s ease-in-out infinite,floatYsm 5s ease-in-out infinite;" />
+        </div>
+        <img src="assets/hero-text-trim.png" alt="La Gran Aventura de Emiliano — Un pequeño explorador está por llegar" style="position:relative;z-index:1;width:clamp(202px,56vw,344px);height:auto;margin-top:10px;animation:floatYsm 5s ease-in-out infinite;filter:drop-shadow(0 3px 12px rgba(255,250,238,.7));" />
+      </div>
+    </div>
+
+    <div style="position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:3;display:flex;flex-direction:column;align-items:center;gap:5px;animation:cuemove 2.5s ease-in-out infinite;color:#B8893C;">
+      <span style="width:32px;height:32px;border:1px solid #B8893C;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;">⌄</span>
+    </div>
+  </section>
+
+  <!-- ===== 2 · HISTORIA ===== -->
+  <section data-screen-label="Historia" style="position:relative;background:transparent;padding:74px 20px 64px;overflow:hidden;">
+    <div aria-hidden="true" style="position:absolute;inset:0;z-index:0;background:url('assets/bg-claro.png') center/cover no-repeat;"></div>
+    <div data-reveal style="position:relative;z-index:2;text-align:center;margin-bottom:34px;display:flex;align-items:center;justify-content:center;">
+      <img src="assets/titulo-historia.png" alt="La Historia de Emiliano" style="width:clamp(280px,80vw,560px);height:auto;filter:drop-shadow(0 3px 10px rgba(255,250,238,.6));" />
+    </div>
+
+    <div class="story-row" style="position:relative;z-index:2;max-width:1040px;margin:0 auto;display:flex;gap:6px;justify-content:center;align-items:flex-start;padding:8px 2px 6px;">
+      <sc-for list="{{ story }}" as="s" hint-placeholder-count="0">
+        <div data-reveal class="story-card" onClick="{{ s.onZoom }}" style="flex:1 1 0;min-width:0;max-width:176px;position:relative;">
+          <div class="story-anim" style="aspect-ratio:78/130;position:relative;">
+          <div style="position:absolute;inset:0;background:url('{{ s.card }}') center/contain no-repeat;pointer-events:none;filter:drop-shadow(0 8px 18px rgba(120,90,40,.28));"></div>
+          <div style="position:absolute;left:15%;right:15%;top:16%;bottom:17.5%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6%;z-index:1;">
+            <div style="width:72%;aspect-ratio:1;border-radius:50%;overflow:hidden;border:2px solid rgba(184,137,60,.6);box-shadow:0 4px 10px rgba(90,60,20,.3);">
+              <div style="width:100%;height:100%;background:url('{{ s.img }}') {{ s.pos }}/cover no-repeat;"></div>
+            </div>
+            <p style="font-family:'Jost';font-weight:400;font-size:clamp(8px,2vw,11px);line-height:1.3;color:#6b4f26;text-align:center;margin:0;text-wrap:pretty;">{{ s.text }}</p>
+            <div aria-hidden="true" style="margin-top:auto;font-size:clamp(12px,2.8vw,16px);line-height:1;color:#B8893C;opacity:.6;">🐾</div>
+          </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- ===== 3 · CUENTA REGRESIVA ===== -->
+  <section data-screen-label="Cuenta regresiva" style="position:relative;padding:52px 20px 46px;overflow:visible;background:transparent;">
+    <div style="position:absolute;inset:0;z-index:0;overflow:hidden;">
+      <div style="position:absolute;inset:0;background:url('assets/bg-countdown2.png') center/cover no-repeat;"></div>
+    </div>
+    <div class="cd-inner" style="position:relative;z-index:2;max-width:760px;margin:0 auto;transform:translateX(clamp(16px,8vw,90px));display:flex;flex-direction:column;align-items:center;text-align:center;">
+      <img data-reveal src="assets/titulo-countdown.png" alt="Cuenta Regresiva para nuestra gran aventura" style="width:clamp(262px,74vw,470px);height:auto;filter:drop-shadow(0 3px 10px rgba(255,250,238,.55));" />
+      <div data-reveal class="cd-boxes" style="display:flex;gap:clamp(6px,2vw,16px);justify-content:center;flex-wrap:nowrap;margin-top:24px;">
+        <div style="position:relative;width:clamp(66px,17vw,114px);aspect-ratio:1;background:url('assets/recuadro.png') center/contain no-repeat;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <div id="cd-d" style="font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(24px,6vw,44px);line-height:1;color:#8a6526;">--</div>
+          <div style="font-family:'Jost';font-size:clamp(7px,1.5vw,10px);letter-spacing:.1em;text-transform:uppercase;color:#9a7c42;margin-top:3px;">Días</div>
+        </div>
+        <div style="position:relative;width:clamp(66px,17vw,114px);aspect-ratio:1;background:url('assets/recuadro.png') center/contain no-repeat;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <div id="cd-h" style="font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(24px,6vw,44px);line-height:1;color:#8a6526;">--</div>
+          <div style="font-family:'Jost';font-size:clamp(7px,1.5vw,10px);letter-spacing:.1em;text-transform:uppercase;color:#9a7c42;margin-top:3px;">Horas</div>
+        </div>
+        <div style="position:relative;width:clamp(66px,17vw,114px);aspect-ratio:1;background:url('assets/recuadro.png') center/contain no-repeat;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <div id="cd-m" style="font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(24px,6vw,44px);line-height:1;color:#8a6526;">--</div>
+          <div style="font-family:'Jost';font-size:clamp(7px,1.5vw,10px);letter-spacing:.1em;text-transform:uppercase;color:#9a7c42;margin-top:3px;">Min</div>
+        </div>
+        <div style="position:relative;width:clamp(66px,17vw,114px);aspect-ratio:1;background:url('assets/recuadro.png') center/contain no-repeat;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <div id="cd-s" style="font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(24px,6vw,44px);line-height:1;color:#8a6526;">--</div>
+          <div style="font-family:'Jost';font-size:clamp(7px,1.5vw,10px);letter-spacing:.1em;text-transform:uppercase;color:#9a7c42;margin-top:3px;">Seg</div>
+        </div>
+      </div>
+    </div>
+    <img src="assets/emiliano-waving.png" alt="Emiliano" class="cd-lion" style="position:absolute;z-index:3;left:clamp(-6px,2vw,30px);bottom:-100px;width:clamp(234px,47vw,330px);height:auto;filter:drop-shadow(0 16px 22px rgba(90,60,20,.28));pointer-events:none;" />
+  </section>
+
+  <!-- ===== 4 · DETALLES ===== -->
+  <section id="sec-detalles" data-screen-label="Detalles" class="det-section" style="position:relative;height:370px;padding:0 20px;overflow:hidden;background:transparent;display:flex;align-items:center;">
+    <div style="position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(241,232,210,0) 78%,#f1e8d2 100%),url('assets/bg-claro.png') center/cover no-repeat;"></div>
+    <img data-reveal src="assets/emiliano-saludando2.png" alt="Emiliano explorador" class="det-lion" style="position:absolute;z-index:2;right:clamp(29px,5vw,75px);bottom:0;width:clamp(150px,30vw,230px);height:auto;animation:floatYsm 6.5s ease-in-out infinite;filter:drop-shadow(0 18px 22px rgba(90,60,20,.26));pointer-events:none;" />
+    <div style="position:relative;z-index:3;width:100%;max-width:1000px;margin:0 auto;">
+      <div style="display:flex;justify-content:flex-start;">
+        <div class="det-col" style="display:inline-flex;flex-direction:column;align-items:center;transform:translateX(40px);">
+          <div data-reveal style="margin-bottom:10px;">
+            <img src="assets/titulo-detalles.png" alt="Detalles de la Aventura" style="display:block;width:clamp(250px,56vw,430px);height:auto;filter:drop-shadow(0 3px 9px rgba(255,250,238,.5));" />
+          </div>
+          <div data-reveal class="det-boxes" style="display:grid;grid-template-columns:repeat(4,clamp(132px,16.5vw,178px));align-items:stretch;gap:12px;justify-content:center;">
+          <div style="width:100%;aspect-ratio:1.016;background:url('assets/recuadro-detalle.png') center/contain no-repeat;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px 14px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9a6f28" stroke-width="1.6" style="margin-bottom:7px;"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>
+            <div style="font-family:'Jost';font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#9a6f28;margin-bottom:4px;">Fecha</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:16.5px;line-height:1.16;color:#5A4423;">Domingo 16 de<br>Agosto 2026</div>
+          </div>
+          <div style="width:100%;aspect-ratio:1.016;background:url('assets/recuadro-detalle.png') center/contain no-repeat;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px 14px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9a6f28" stroke-width="1.6" style="margin-bottom:7px;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+            <div style="font-family:'Jost';font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#9a6f28;margin-bottom:4px;">Hora</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:16.5px;line-height:1.16;color:#5A4423;">3:00 p.m.</div>
+          </div>
+          <div style="width:100%;aspect-ratio:1.016;background:url('assets/recuadro-detalle.png') center/contain no-repeat;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px 14px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9a6f28" stroke-width="1.6" style="margin-bottom:7px;"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            <div style="font-family:'Jost';font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#9a6f28;margin-bottom:4px;">Lugar</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:15.4px;line-height:1.14;color:#5A4423;">Nature Aqua<br><span style="font-family:'Jost';font-weight:400;font-size:11px;color:#8a7752;">Sabaneta, Antioquia</span></div>
+          </div>
+          <div style="width:100%;aspect-ratio:1.016;background:url('assets/recuadro-detalle.png') center/contain no-repeat;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px 14px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9a6f28" stroke-width="1.6" style="margin-bottom:7px;"><path d="M8 4l-3 2v3l2 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-8l2-1V6l-3-2-2 2-2 .8L10 6 8 4z"/></svg>
+            <div style="font-family:'Jost';font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#9a6f28;margin-bottom:4px;">Código de vestuario</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:14.85px;line-height:1.14;color:#5A4423;">Tonos tierra y safari<br><span style="font-family:'Jost';font-weight:400;font-size:9.9px;color:#8a7752;">Beige · caqui · verde · café · negro · blanco</span></div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 5 · MAPA ===== -->
+  <section data-screen-label="Ubicacion" style="position:relative;min-height:320px;display:flex;align-items:center;justify-content:center;padding:26px 16px;background:linear-gradient(180deg,#f1e8d2 0%,rgba(241,232,210,0) 22%,rgba(241,232,210,0) 78%,#f1e8d2 100%),url('assets/bg-claro.png') center/cover no-repeat;">
+    <div data-reveal style="position:relative;max-width:700px;width:100%;">
+      <img src="assets/titulo-toca-mapa.png" alt="Toca la imagen para llegar al Safari" style="display:block;width:clamp(150px,58vw,420px);height:auto;margin:0 auto 8px;filter:drop-shadow(0 3px 8px rgba(255,250,238,.5));" />
+      <a href="https://www.google.com/maps/search/?api=1&query=Urbanizaci%C3%B3n+Nature+Aqua+Sabaneta+Antioquia" target="_blank" rel="noopener" onClick="{{ onMapClick }}" aria-label="Abrir ubicación en mapas" style="display:block;cursor:pointer;transition:transform .4s cubic-bezier(.2,.7,.2,1),filter .4s;filter:drop-shadow(0 14px 30px rgba(90,60,20,.28));" style-hover="transform:translateY(-4px) scale(1.012);filter:drop-shadow(0 22px 40px rgba(90,60,20,.4))">
+        <img src="assets/mapa-explorador.png" alt="Mapa del Explorador · Urbanización Nature Aqua, Sabaneta" class="only-desktop" style="display:block;width:100%;height:auto;" />
+        <img src="assets/mapa-mobile-trim.png" alt="Mapa del Explorador · Urbanización Nature Aqua, Sabaneta" class="only-mobile" style="width:64%;height:auto;margin:0 auto;" />
+      </a>
+      <sc-if value="{{ mapMenu }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ closeMapMenu }}" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(24,17,8,.62);border-radius:14px;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);">
+          <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;color:#FBF3DD;margin-bottom:2px;">¿Cómo prefieres llegar?</div>
+          <a href="https://waze.com/ul?q=Urbanizaci%C3%B3n%20Nature%20Aqua%20Sabaneta%20Antioquia&navigate=yes" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:9px;min-width:200px;justify-content:center;padding:13px 26px;border-radius:30px;background:linear-gradient(135deg,#33CCFF,#1f8fd6);color:#fff;font-family:'Jost';font-weight:500;font-size:13px;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;box-shadow:0 8px 20px rgba(31,143,214,.4);">Abrir en Waze</a>
+          <a href="https://www.google.com/maps/search/?api=1&query=Urbanizaci%C3%B3n+Nature+Aqua+Sabaneta+Antioquia" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:9px;min-width:200px;justify-content:center;padding:13px 26px;border-radius:30px;background:linear-gradient(135deg,#E6C873,#B8893C);color:#3a2a0f;font-family:'Jost';font-weight:500;font-size:13px;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;box-shadow:0 8px 20px rgba(184,137,60,.4);">Abrir en Google Maps</a>
+        </div>
+      </sc-if>
+    </div>
+  </section>
+
+  <!-- ===== 6 · REGALOS ===== -->
+  <section id="sec-regalos" data-screen-label="Regalos" style="position:relative;background:linear-gradient(180deg,#f1e8d2 0%,rgba(241,232,210,0) 16%),url('assets/bg-claro.png') center/cover;padding:20px 20px 40px;">
+    <div aria-hidden="true" style="position:absolute;left:50%;top:-64px;transform:translateX(-50%);width:min(640px,94vw);height:160px;background:radial-gradient(ellipse 62% 100% at 50% 50%,rgba(230,200,115,.16),transparent 72%);pointer-events:none;"></div>
+    <img src="assets/leaf-sprig.png" aria-hidden="true" style="position:absolute;right:4vw;top:-24px;width:58px;height:auto;opacity:.4;transform:rotate(16deg) scaleX(-1);pointer-events:none;" />
+    <div data-reveal style="text-align:center;margin-bottom:34px;display:flex;align-items:center;justify-content:center;">
+      <img src="assets/titulo-regalos.png" alt="Ayuda a Emiliano en su Aventura" style="width:clamp(300px,84vw,640px);height:auto;filter:drop-shadow(0 3px 9px rgba(255,250,238,.55));" />
+    </div>
+
+    <div style="max-width:1000px;margin:0 auto;display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:flex-start;">
+      <sc-for list="{{ featured }}" as="f" hint-placeholder-count="0">
+        <div data-reveal style="flex:1 1 200px;max-width:228px;min-width:146px;">
+          <div onClick="{{ f.onOpen }}" title="{{ f.name }}" style="width:100%;aspect-ratio:0.70;background:url('{{ f.card }}') center/contain no-repeat;cursor:pointer;transition:transform .4s cubic-bezier(.2,.7,.2,1),filter .4s;filter:drop-shadow(0 12px 26px rgba(120,90,40,.22));" style-hover="transform:translateY(-14px) scale(1.09) rotate(-1.5deg);filter:drop-shadow(0 30px 52px rgba(120,90,40,.45)) drop-shadow(0 0 18px rgba(230,200,115,.55))"></div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="text-align:center;margin-top:28px;">
+      <img onClick="{{ toggleGifts }}" src="assets/btn-regalos.png" alt="Ver todos los regalos" style="display:inline-block;width:clamp(230px,60vw,330px);height:auto;cursor:pointer;transition:transform .3s,filter .3s;animation:glowpulse 2.6s ease-in-out infinite;" style-hover="transform:translateY(-2px) scale(1.04);filter:drop-shadow(0 14px 26px rgba(120,90,40,.34)) drop-shadow(0 0 22px rgba(230,200,115,.7))" />
+    </div>
+
+    <sc-if value="{{ giftsOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:640px;margin:28px auto 0;">
+        <p style="text-align:center;font-family:'Jost';font-weight:300;font-size:13px;line-height:1.6;color:#7a6843;max-width:430px;margin:0 auto 8px;">Reserva el regalo que quieras obsequiar para que no se repita. Tu selección queda guardada en este dispositivo.</p>
+        <div style="text-align:center;margin-bottom:22px;font-family:'Jost';font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#a8966c;"><span style="color:#B8893C;font-weight:500;">{{ takenGifts }}</span> de {{ totalGifts }} reservados</div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="0">
+            <div style="background:#FBF7EE;border:1px solid rgba(184,137,60,.26);border-radius:14px;overflow:hidden;box-shadow:0 8px 22px rgba(120,90,40,.08);">
+              <div style="display:flex;align-items:center;gap:12px;padding:14px 18px 12px;border-bottom:1px solid rgba(184,137,60,.16);background:linear-gradient(180deg,rgba(230,200,115,.14),transparent);">
+                <sc-if value="{{ cat.hasImg }}" hint-placeholder-val="{{ false }}">
+                  <div style="flex:none;width:48px;height:48px;background:url('{{ cat.img }}') center/contain no-repeat;filter:drop-shadow(0 3px 6px rgba(90,60,20,.25));"></div>
+                </sc-if>
+                <div>
+                  <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:22px;color:#6B4F26;line-height:1.1;">{{ cat.title }}</div>
+                  <div style="font-family:'Jost';font-weight:300;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#B8893C;margin-top:3px;">{{ cat.lead }}</div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;">
+                <sc-for list="{{ cat.items }}" as="item" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 18px;border-top:1px solid rgba(184,137,60,.1);">
+                    <span style="font-family:'Jost';font-weight:300;font-size:14px;color:#5A4423;line-height:1.3;">{{ item.name }}</span>
+                    <sc-if value="{{ item.notReserved }}" hint-placeholder-val="{{ true }}">
+                      <button onClick="{{ item.onReserve }}" style="flex:none;padding:7px 15px;border:1px solid #B8893C;border-radius:22px;background:transparent;color:#8a6526;font-family:'Jost';font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .3s;white-space:nowrap;" style-hover="background:#B8893C;color:#fff">Reservar</button>
+                    </sc-if>
+                    <sc-if value="{{ item.reserved }}" hint-placeholder-val="{{ false }}">
+                      <button onClick="{{ item.onReserve }}" title="Liberar" style="flex:none;padding:7px 15px;border:1px solid #B8893C;border-radius:22px;background:#B8893C;color:#fff;font-family:'Jost';font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap;">Reservado ✓</button>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ giftModalOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeGiftModal }}" style="position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(24,16,6,.62);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);">
+        <div onClick="{{ stop }}" style="position:relative;width:min(92vw,420px);max-height:90vh;overflow-y:auto;background:#FBF6EC;border:2px solid rgba(184,137,60,.4);border-radius:22px;box-shadow:0 26px 70px rgba(20,12,4,.55);padding:18px 0 22px;">
+          <button onClick="{{ closeGiftModal }}" aria-label="Cerrar" style="position:absolute;top:12px;right:12px;width:34px;height:34px;border:1px solid rgba(184,137,60,.45);border-radius:50%;background:#fff;color:#8a6526;font-size:16px;line-height:1;cursor:pointer;z-index:3;display:flex;align-items:center;justify-content:center;">✕</button>
+          <img src="assets/emblema.png" alt="Emiliano" style="display:block;width:min(44%,148px);height:auto;margin:2px auto 12px;" /><div style="padding:0 22px;">
+
+          <sc-if value="{{ giftModalShowForm }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:1;overflow-y:auto;">
+              <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:24px;color:#6B4F26;text-align:center;line-height:1.1;">Confirma tu asistencia</div>
+              <p style="font-family:'Jost';font-weight:300;font-size:12.5px;line-height:1.5;color:#7a6843;text-align:center;margin:6px 0 6px;">Para reservar un regalo, primero cuéntanos quién vendrá a la aventura de Emiliano.</p>
+              <div style="font-family:'Jost';font-weight:500;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#B8893C;text-align:center;margin-bottom:14px;">Máximo 3 personas por invitación</div>
+              <input value="{{ fNombre }}" onChange="{{ onFNombre }}" placeholder="Nombre de quien reserva" style="width:100%;padding:12px 14px;margin-bottom:9px;border:1px solid rgba(184,137,60,.45);border-radius:9px;background:rgba(255,255,255,.75);color:#5A4423;font-family:'Jost';font-size:14px;outline:none;" />
+              <sc-for list="{{ extraNames }}" as="ex" hint-placeholder-count="0">
+                <div style="display:flex;gap:8px;align-items:center;margin-bottom:9px;">
+                  <input value="{{ ex.value }}" onChange="{{ ex.onChange }}" placeholder="{{ ex.placeholder }}" style="flex:1;padding:12px 14px;border:1px solid rgba(184,137,60,.45);border-radius:9px;background:rgba(255,255,255,.75);color:#5A4423;font-family:'Jost';font-size:14px;outline:none;" />
+                  <button onClick="{{ ex.onRemove }}" aria-label="Quitar" style="flex:none;width:34px;height:34px;border:1px solid rgba(184,137,60,.4);border-radius:50%;background:transparent;color:#9a7c42;font-size:15px;line-height:1;cursor:pointer;">✕</button>
+                </div>
+              </sc-for>
+              <sc-if value="{{ canAddAttendee }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ addAttendee }}" style="width:100%;margin-bottom:6px;padding:11px;border:1px dashed rgba(184,137,60,.6);border-radius:9px;background:transparent;color:#8a6526;font-family:'Jost';font-weight:500;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;">+ Agregar asistente</button>
+              </sc-if>
+              <sc-if value="{{ formError }}" hint-placeholder-val="{{ false }}">
+                <div style="font-family:'Jost';font-size:12px;color:#b3502a;text-align:center;margin:4px 0 6px;">{{ formError }}</div>
+              </sc-if>
+              <button onClick="{{ submitAttendance }}" style="width:100%;margin-top:8px;padding:14px;border:none;border-radius:28px;background:linear-gradient(135deg,#E6C873,#B8893C);color:#3a2a0f;font-family:'Jost';font-weight:500;font-size:12px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;box-shadow:0 10px 24px rgba(184,137,60,.3);">Confirmar y reservar</button>
+              <button onClick="{{ backToList }}" style="width:100%;margin-top:6px;padding:8px;border:none;background:transparent;color:#9a7c42;font-family:'Jost';font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">← Volver a la lista</button>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ giftModalList }}" hint-placeholder-val="{{ true }}">
+            <div style="flex:1;overflow-y:auto;">
+              <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:25px;color:#6B4F26;text-align:center;padding:0 28px;line-height:1.12;">{{ giftModalTitle }}</div>
+              <div style="font-family:'Jost';font-weight:300;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#B8893C;text-align:center;margin-top:5px;">{{ giftModalLead }}</div>
+              <sc-if value="{{ attendeeConfirmed }}" hint-placeholder-val="{{ false }}">
+                <div style="font-family:'Jost';font-size:11px;color:#5a8a4a;text-align:center;margin-top:8px;">✓ Asistencia confirmada como {{ attendeeName }}</div>
+              </sc-if>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;">
+                <sc-for list="{{ giftModalItems }}" as="item" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;background:rgba(255,255,255,.86);border:1px solid rgba(184,137,60,.28);border-radius:11px;box-shadow:0 2px 8px rgba(120,90,40,.08);">
+                    <span style="font-family:'Jost';font-weight:300;font-size:14px;color:#5A4423;line-height:1.3;">{{ item.name }}</span>
+                    <sc-if value="{{ item.notReserved }}" hint-placeholder-val="{{ true }}">
+                      <button onClick="{{ item.onReserve }}" style="flex:none;padding:8px 16px;border:1px solid #B8893C;border-radius:22px;background:transparent;color:#8a6526;font-family:'Jost';font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .3s;white-space:nowrap;" style-hover="background:#B8893C;color:#fff">Reservar</button>
+                    </sc-if>
+                    <sc-if value="{{ item.reserved }}" hint-placeholder-val="{{ false }}">
+                      <span style="flex:none;display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:22px;background:#e9ddc2;color:#9a8559;font-family:'Jost';font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;">Reservado ✓</span>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </section>
+
+  <!-- ===== 7 · MENSAJES Y CONFIRMACIÓN ===== -->
+  <section data-screen-label="Mensajes y RSVP" style="position:relative;background:url('assets/bg-claro.png') center/cover;padding:30px 20px;">
+    <div style="max-width:1040px;margin:0 auto;display:flex;flex-wrap:wrap;gap:20px;">
+      <!-- IZQUIERDA · mensajes -->
+      <div data-reveal style="flex:1 1 360px;position:relative;aspect-ratio:3/1;min-height:230px;border-radius:20px;overflow:hidden;background:url('assets/bg-mensajes.png') center/cover no-repeat;box-shadow:0 14px 34px rgba(120,90,40,.18);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:18px 12% 18px 5%;">
+        <img src="assets/txt-mensaje.png" alt="Un mensaje para Emiliano. Déjale tus mejores deseos en su libro de aventuras." style="width:min(80%,384px);height:auto;animation:floatYsm 4.5s ease-in-out infinite;" />
+        <img onClick="{{ openMsgModal }}" src="assets/btn-dejar-mensaje.png" alt="Dejar mensaje" class="msg-cta" style="width:min(58%,207px);height:auto;cursor:pointer;transition:transform .3s,filter .3s;filter:drop-shadow(0 8px 16px rgba(90,60,20,.3));" style-hover="transform:translateY(-3px) scale(1.03);filter:drop-shadow(0 14px 24px rgba(90,60,20,.42))" />
+      </div>
+      <!-- DERECHA · confirmación -->
+      <div data-reveal style="flex:1 1 360px;position:relative;aspect-ratio:2.4/1;min-height:180px;border-radius:20px;overflow:hidden;background:url('assets/bg-confirmar.png') center/cover no-repeat;box-shadow:0 14px 34px rgba(120,90,40,.18);display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:16px;padding:26px 34px;">
+        <img src="assets/txt-confirmar.png" alt="¿Nos acompañarás en esta aventura? Confirma tu asistencia y sé parte de este día inolvidable." style="width:min(60%,230px);height:auto;animation:floatYsm 5s ease-in-out infinite;" />
+        <img onClick="{{ openConfirmModal }}" src="assets/btn-confirmar.png" alt="Confirmar asistencia" style="width:min(58%,210px);height:auto;cursor:pointer;transition:transform .3s,filter .3s;filter:drop-shadow(0 8px 16px rgba(90,60,20,.3));" style-hover="transform:translateY(-3px) scale(1.03);filter:drop-shadow(0 14px 24px rgba(90,60,20,.42))" />
+      </div>
+    </div>
+  </section>
+
+  <!-- MODAL · ZOOM HISTORIA -->
+  <sc-if value="{{ zoomOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeZoom }}" style="position:fixed;inset:0;z-index:520;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(24,16,6,.72);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);">
+      <div style="position:relative;width:min(84vw,360px);aspect-ratio:78/130;max-height:90vh;background:url('{{ zoomCardBg }}') center/contain no-repeat;filter:drop-shadow(0 24px 50px rgba(0,0,0,.5));">
+        <div style="position:absolute;left:15%;right:15%;top:16%;bottom:17.5%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:5%;">
+          <div style="width:70%;aspect-ratio:1;border-radius:50%;overflow:hidden;border:3px solid rgba(184,137,60,.7);box-shadow:0 6px 16px rgba(90,60,20,.35);">
+            <div style="width:100%;height:100%;background:url('{{ zoomImg }}') {{ zoomPos }}/cover no-repeat;"></div>
+          </div>
+          <p style="font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(16px,4.6vw,22px);line-height:1.4;color:#6b4f26;text-align:center;margin:0;text-wrap:pretty;">{{ zoomText }}</p>
+          <div aria-hidden="true" style="margin-top:auto;font-size:26px;line-height:1;color:#B8893C;opacity:.6;">🐾</div>
+        </div>
+        <button onClick="{{ closeZoom }}" aria-label="Cerrar" style="position:absolute;top:-12px;right:-6px;width:38px;height:38px;border:none;border-radius:50%;background:#FBF6EC;color:#8a6526;font-size:19px;line-height:1;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.3);">✕</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- MODAL · DEJAR MENSAJE -->
+  <sc-if value="{{ msgModalOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeMsgModal }}" style="position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(24,16,6,.62);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);">
+      <div onClick="{{ stop }}" style="position:relative;width:min(92vw,420px);max-height:90vh;overflow-y:auto;background:#FBF6EC;border:2px solid rgba(184,137,60,.4);border-radius:22px;box-shadow:0 26px 70px rgba(20,12,4,.55);padding:18px 0 22px;">
+        <button onClick="{{ closeMsgModal }}" aria-label="Cerrar" style="position:absolute;top:12px;right:12px;width:34px;height:34px;border:1px solid rgba(184,137,60,.45);border-radius:50%;background:#fff;color:#8a6526;font-size:16px;line-height:1;cursor:pointer;z-index:3;display:flex;align-items:center;justify-content:center;">✕</button>
+        <img src="assets/emblema.png" alt="Emiliano" style="display:block;width:min(44%,148px);height:auto;margin:2px auto 12px;" /><div style="padding:0 22px;">
+          <sc-if value="{{ msgSent }}" hint-placeholder-val="{{ false }}">
+            <div style="text-align:center;padding-top:14px;">
+              <div style="font-size:34px;margin-bottom:10px;">🦁</div>
+              <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:25px;color:#6B4F26;line-height:1.2;">¡Gracias por tu mensaje!</div>
+              <p style="font-family:'Jost';font-weight:300;font-size:13px;line-height:1.55;color:#7a6843;margin:10px 0 0;">Emiliano lo guardará en su libro de aventuras.</p>
+            </div>
+          </sc-if>
+          <sc-if value="{{ msgFormShown }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:23px;color:#6B4F26;text-align:center;line-height:1.1;">Un mensaje para Emiliano</div>
+              <p style="font-family:'Jost';font-weight:300;font-size:12.5px;line-height:1.5;color:#7a6843;text-align:center;margin:6px 0 14px;">Déjale tus mejores deseos en su libro de aventuras.</p>
+              <input value="{{ msgName }}" onChange="{{ onName }}" placeholder="Tu nombre" style="width:100%;padding:12px 14px;margin-bottom:9px;border:1px solid rgba(184,137,60,.45);border-radius:9px;background:rgba(255,255,255,.78);color:#5A4423;font-family:'Jost';font-size:14px;outline:none;" />
+              <textarea value="{{ msgText }}" onChange="{{ onText }}" placeholder="Escribe tu mensaje..." rows="4" style="width:100%;padding:12px 14px;border:1px solid rgba(184,137,60,.45);border-radius:9px;background:rgba(255,255,255,.78);color:#5A4423;font-family:'Jost';font-size:14px;outline:none;resize:vertical;line-height:1.5;"></textarea>
+              <sc-if value="{{ msgError }}" hint-placeholder-val="{{ false }}">
+                <div style="font-family:'Jost';font-size:12px;color:#b3502a;text-align:center;margin:6px 0 2px;">{{ msgError }}</div>
+              </sc-if>
+              <img onClick="{{ submitMessage }}" src="assets/btn-dejar-mensaje.png" alt="Dejar mensaje" style="display:block;width:min(74%,220px);height:auto;margin:16px auto 0;cursor:pointer;transition:transform .3s;filter:drop-shadow(0 6px 12px rgba(90,60,20,.28));" style-hover="transform:translateY(-2px) scale(1.03)" />
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- MODAL · CONFIRMAR ASISTENCIA -->
+  <sc-if value="{{ confirmModalOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeConfirmModal }}" style="position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(24,16,6,.62);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);">
+      <div onClick="{{ stop }}" style="position:relative;width:min(92vw,420px);max-height:90vh;overflow-y:auto;background:#FBF6EC;border:2px solid rgba(184,137,60,.4);border-radius:22px;box-shadow:0 26px 70px rgba(20,12,4,.55);padding:18px 0 22px;">
+        <button onClick="{{ closeConfirmModal }}" aria-label="Cerrar" style="position:absolute;top:12px;right:12px;width:34px;height:34px;border:1px solid rgba(184,137,60,.45);border-radius:50%;background:#fff;color:#8a6526;font-size:16px;line-height:1;cursor:pointer;z-index:3;display:flex;align-items:center;justify-content:center;">✕</button>
+        <img src="assets/emblema.png" alt="Emiliano" style="display:block;width:min(44%,148px);height:auto;margin:2px auto 12px;" /><div style="padding:0 22px;">
+          <sc-if value="{{ confirmThanks }}" hint-placeholder-val="{{ false }}">
+            <div style="text-align:center;padding-top:14px;">
+              <div style="font-size:34px;margin-bottom:10px;">🦁</div>
+              <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:26px;color:#6B4F26;line-height:1.2;">Gracias por confirmar tu asistencia</div>
+              <p style="font-family:'Jost';font-weight:300;font-size:13px;line-height:1.55;color:#7a6843;margin:10px 0 0;">Te esperamos en la gran aventura de Emiliano 🤍</p>
+            </div>
+          </sc-if>
+          <sc-if value="{{ confirmFormShown }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:23px;color:#6B4F26;text-align:center;line-height:1.1;">Confirma tu asistencia</div>
+              <p style="font-family:'Jost';font-weight:300;font-size:12.5px;line-height:1.5;color:#7a6843;text-align:center;margin:6px 0 4px;">Cuéntanos quién vendrá a la aventura de Emiliano.</p>
+              <div style="font-family:'Jost';font-weight:500;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#B8893C;text-align:center;margin-bottom:14px;">Máximo 4 personas por invitación</div>
+              <input value="{{ fNombre }}" onChange="{{ onFNombre }}" placeholder="Tu nombre" style="width:100%;padding:12px 14px;margin-bottom:9px;border:1px solid rgba(184,137,60,.45);border-radius:9px;background:rgba(255,255,255,.78);color:#5A4423;font-family:'Jost';font-size:14px;outline:none;" />
+              <sc-for list="{{ extraNames }}" as="ex" hint-placeholder-count="0">
+                <div style="display:flex;gap:8px;align-items:center;margin-bottom:9px;">
+                  <input value="{{ ex.value }}" onChange="{{ ex.onChange }}" placeholder="{{ ex.placeholder }}" style="flex:1;padding:12px 14px;border:1px solid rgba(184,137,60,.45);border-radius:9px;background:rgba(255,255,255,.78);color:#5A4423;font-family:'Jost';font-size:14px;outline:none;" />
+                  <button onClick="{{ ex.onRemove }}" aria-label="Quitar" style="flex:none;width:34px;height:34px;border:1px solid rgba(184,137,60,.4);border-radius:50%;background:transparent;color:#9a7c42;font-size:15px;line-height:1;cursor:pointer;">✕</button>
+                </div>
+              </sc-for>
+              <sc-if value="{{ canAddAttendee }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ addAttendee }}" style="width:100%;margin-bottom:6px;padding:11px;border:1px dashed rgba(184,137,60,.6);border-radius:9px;background:transparent;color:#8a6526;font-family:'Jost';font-weight:500;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;">+ Agregar asistente</button>
+              </sc-if>
+              <sc-if value="{{ formError }}" hint-placeholder-val="{{ false }}">
+                <div style="font-family:'Jost';font-size:12px;color:#b3502a;text-align:center;margin:4px 0 6px;">{{ formError }}</div>
+              </sc-if>
+              <img onClick="{{ submitConfirm }}" src="assets/btn-confirmar.png" alt="Confirmar asistencia" style="display:block;width:min(82%,240px);height:auto;margin:14px auto 6px;cursor:pointer;transition:transform .3s;filter:drop-shadow(0 6px 12px rgba(90,60,20,.28));" style-hover="transform:translateY(-2px) scale(1.03)" />
+              <button onClick="{{ yaReserve }}" style="display:block;margin:6px auto 0;border:none;background:transparent;color:#9a7c42;font-family:'Jost';font-size:12px;letter-spacing:.04em;text-decoration:underline;cursor:pointer;">Ya reservé</button>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===== 8 · FOOTER ===== -->
+  <footer data-screen-label="Footer" style="position:relative;overflow:hidden;">
+    <div style="position:relative;width:100%;">
+      <img src="assets/banner-footer.png" alt="" class="only-desktop" style="display:block;width:100%;height:auto;" />
+      <img src="assets/footer-mobile.png" alt="" class="only-mobile" style="width:100%;height:auto;" />
+      <div class="footer-text" style="position:absolute;left:0;top:0;bottom:0;width:58%;display:flex;align-items:center;justify-content:center;padding:0 3% 0 4%;">
+        <div style="position:relative;display:flex;align-items:center;justify-content:center;">
+          <div aria-hidden="true" class="footer-glow" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:128%;height:150%;background:radial-gradient(ellipse at center,rgba(255,253,247,.92) 0%,rgba(255,250,240,.6) 42%,rgba(255,248,232,0) 72%);filter:blur(8px);pointer-events:none;"></div>
+          <img data-reveal src="assets/txt-gracias.png" alt="Gracias por acompañarnos en el comienzo de esta gran aventura. Con cariño, Cristian, Camila y Emiliano" style="position:relative;z-index:1;width:100%;max-width:430px;height:auto;" />
+        </div>
+      </div>
+    </div>
+    <div style="background:#2e1d0d;padding:14px clamp(14px,4vw,26px);display:flex;flex-wrap:nowrap;align-items:center;justify-content:space-between;gap:12px;">
+      <img src="assets/txt-footer1.png" alt="Baby Shower Emiliano" style="height:clamp(11px,3vw,24px);width:auto;flex:0 1 auto;" />
+      <img src="assets/txt-footer2.png" alt="Hecho con amor para Emiliano" style="height:clamp(9px,2.4vw,20px);width:auto;flex:0 1 auto;" />
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    reserved: {},
+    messages: [
+      { name: 'La abuela Marta', text: 'Bienvenido a la manada, pequeño Emiliano. Te esperamos con todo el amor del mundo.' },
+      { name: 'Tío Andrés', text: 'Que tu vida sea una gran aventura por la sabana. ¡Ya queremos conocerte!' }
+    ],
+    msgName: '', msgText: '',
+    muted: false, soundOn: true,
+    giftsOpen: false, msgOpen: false, mapMenu: false,
+    giftCat: null, showForm: false, pendingItem: null, attendee: null,
+    fNombre: '', extraNames: [], formError: '',
+    msgModalOpen: false, msgSent: false, msgError: '',
+    confirmModalOpen: false, confirmThanks: false
+  };
+
+  STORY = [
+    { n: 1, img: 'assets/emiliano-surprised.png', card: 'assets/card-1-t.png', pos: 'center 30%', text: 'Un día, en la inmensa sabana africana, una pequeña sorpresa comenzó a crecer...' },
+    { n: 2, img: 'assets/giraffe.png', card: 'assets/card-2-t.png', pos: 'center 18%', text: 'Los animales de la sabana fueron los primeros en enterarse.' },
+    { n: 3, img: 'assets/zebra.png', card: 'assets/card-3-t.png', pos: 'center 16%', text: 'La noticia comenzó a recorrer cada rincón del safari.' },
+    { n: 4, img: 'assets/monkey.png', card: 'assets/card-4-t.png', pos: 'center 20%', text: 'Y muy pronto todos quisieron preparar una gran bienvenida.' },
+    { n: 5, img: 'assets/elephant.png', card: 'assets/card-5-t.png', pos: 'center 28%', text: 'Porque una nueva aventura estaba por comenzar.' }
+  ];
+
+  FEATURED = [
+    { name: 'Transporte', card: 'assets/card-transporte.png', cat: 0 },
+    { name: 'Alimentación', card: 'assets/card-alimentacion.png', cat: 6 },
+    { name: 'Descanso', card: 'assets/card-descanso.png', cat: 1 },
+    { name: 'Cuidado', card: 'assets/card-cuidado.png', cat: 9 }
+  ];
+
+  GIFTS = [
+    { title: 'Safari de Aventuras', lead: 'Para rodar por la sabana', img: 'assets/gift-transport.png', items: ['Coche para bebé', 'Silla para carro', 'Canguro ergonómico', 'Pañalera'] },
+    { title: 'Refugio del Cachorro', lead: 'Descanso seguro y cálido', img: 'assets/gift-rest.png', items: ['Colecho', 'Sábanas impermeables', 'Cobija'] },
+    { title: 'Dulces Sueños en la Sabana', lead: 'Su primer nido', items: ['Moisés', 'Base para moisés', 'Juego completo de sábanas', 'Móvil musical'] },
+    { title: 'Kit Habitación Safari', lead: 'El ambiente perfecto', items: ['Humidificador', 'Luz nocturna', 'Organizador decorativo', 'Lámpara infantil'] },
+    { title: 'Vigía de la Sabana', lead: 'Siempre cerca de él', items: ['Monitor para bebé con cámara', 'Sensor de temperatura', 'Luz nocturna inteligente'] },
+    { title: 'Kit Lactancia Completo', lead: 'Momentos de calma', img: 'assets/gift-care.png', items: ['Almohada de lactancia', 'Cojines de apoyo', 'Bolsas de almacenamiento', 'Protector de lactancia'] },
+    { title: 'Estación de Alimento', lead: 'Biberones y limpieza', img: 'assets/gift-feeding.png', items: ['Set completo de biberones', 'Esterilizador', 'Cepillo limpiador', 'Escurridor premium'] },
+    { title: 'Hora de Comer', lead: 'Cuando crezca un poco', items: ['Silla comedor', 'Vajilla premium', 'Cubiertos de aprendizaje', 'Vasos entrenadores'] },
+    { title: 'Oasis de Baño', lead: 'Chapoteo feliz', items: ['Bañera ergonómica', 'Cojín de baño', 'Toallas con capucha', 'Juguetes para baño'] },
+    { title: 'Botiquín del Explorador', lead: 'Cuidado diario', items: ['Shampoo', 'Jabón', 'Crema corporal', 'Crema antipañalitis', 'Aspirador nasal', 'Termómetro digital'] },
+    { title: 'Kit Pañales · Nivel 1', lead: 'Recién llegado', items: ['4 paquetes etapa 1', 'Pañitos húmedos', 'Crema antipañalitis'] },
+    { title: 'Kit Pañales · Nivel 2', lead: 'Creciendo fuerte', items: ['4 paquetes etapa 2', 'Pañitos húmedos', 'Crema antipañalitis'] },
+    { title: 'Kit Pañales · Nivel 3', lead: 'Pequeño explorador', items: ['4 paquetes etapa 3', 'Pañitos húmedos', 'Bolsas desechables'] },
+    { title: 'Kit Descubrimiento Safari', lead: 'Despertar de los sentidos', items: ['Gimnasio de actividades', 'Sonajeros', 'Mordedores', 'Libros sensoriales'] },
+    { title: 'Kit Montessori Explorador', lead: 'Aprender jugando', items: ['Cubos apilables', 'Rompecabezas blandos', 'Juguetes de coordinación', 'Espejo Montessori'] }
+  ];
+
+  target = new Date(2026, 7, 16, 15, 0, 0).getTime();
+
+  componentDidMount() {
+    this.tick();
+    this.timer = setInterval(() => this.tick(), 1000);
+    this.loadStored();
+    setTimeout(() => { this.setupReveals(); this.setupDust(); }, 60);
+    this.initAudio();
+    this.initMsgDb();
+    this._robust = setTimeout(() => {
+      if ((document.timeline.currentTime || 0) < 1) {
+        let k = document.getElementById('reveal-kill');
+        if (!k) { k = document.createElement('style'); k.id = 'reveal-kill'; k.textContent = '[data-reveal]{transition:none !important}'; document.head.appendChild(k); }
+        document.querySelectorAll('[data-reveal]').forEach(el => el.classList.add('is-in'));
+      }
+    }, 700);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timer);
+    if (this.raf) cancelAnimationFrame(this.raf);
+    if (this.audio) { try { this.audio.pause(); } catch (e) {} }
+  }
+
+  setupDust() {
+    const c = document.getElementById('dust');
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let w, h, ps = [];
+    const resize = () => { w = c.width = window.innerWidth * dpr; h = c.height = window.innerHeight * dpr; };
+    resize();
+    window.addEventListener('resize', resize);
+    const N = 60;
+    for (let i = 0; i < N; i++) { const big = Math.random() < 0.22; ps.push({ x: Math.random()*9999, y: Math.random()*9999, r:(big?(Math.random()*3.2+2.2):(Math.random()*1.5+0.4))*dpr, s:(Math.random()*0.22+0.04)*dpr, dx:(Math.random()*0.3-0.15)*dpr, o:(big?Math.random()*0.34+0.18:Math.random()*0.34+0.12), ph:Math.random()*6.28, big:big, tw:(Math.random()*1.6+0.7) }); }
+    const draw = () => {
+      if (!w) resize();
+      ctx.clearRect(0,0,w,h);
+      const t = Date.now()*0.001;
+      for (const p of ps) {
+        if (p.x>9000){p.x=Math.random()*w;p.y=Math.random()*h;}
+        p.y -= p.s; p.x += p.dx + Math.sin(t+p.ph)*0.12*dpr;
+        if (p.y < -8){p.y=h+8;p.x=Math.random()*w;}
+        const tw = p.o*(0.45+0.55*Math.sin(t*p.tw+p.ph));
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,6.283);
+        ctx.fillStyle='rgba('+(p.big?'248,222,150,':'224,188,108,')+Math.max(0,tw)+')';
+        ctx.shadowColor='rgba(245,210,130,.85)'; ctx.shadowBlur=(p.big?14:6)*dpr; ctx.fill();
+      }
+      this.raf = requestAnimationFrame(draw);
+    };
+    draw();
+  }
+
+  loadStored() {
+    try {
+      const r = JSON.parse(localStorage.getItem('emiliano_reserved') || '{}');
+      const m = JSON.parse(localStorage.getItem('emiliano_messages') || 'null');
+      const a = JSON.parse(localStorage.getItem('emiliano_attendee') || 'null');
+      this.setState(s => ({ reserved: r || {}, messages: (m && m.length) ? m : s.messages, attendee: a || null }));
+    } catch (e) {}
+  }
+
+  openCategory(ci) { this.setState({ giftCat: ci, showForm: false, formError: '' }); }
+
+  closeGiftModal() { this.setState({ giftCat: null, showForm: false, pendingItem: null, formError: '' }); }
+
+  tryReserve(id) {
+    if (this.state.reserved[id]) return; // already reserved & locked for everyone
+    this.doReserve(id);
+  }
+
+  doReserve(id) {
+    this.setState(s => {
+      const r = Object.assign({}, s.reserved);
+      r[id] = true;
+      try { localStorage.setItem('emiliano_reserved', JSON.stringify(r)); } catch (e) {}
+      return { reserved: r };
+    });
+  }
+
+  openMsgModal() { this.setState({ msgModalOpen: true, msgSent: false, msgError: '' }); }
+  closeMsgModal() { this.setState({ msgModalOpen: false }); }
+  openZoom(s) { this.setState({ zoomCard: s }); }
+  closeZoom() { this.setState({ zoomCard: null }); }
+  async initMsgDb() {
+    let tries = 0;
+    while (!(window.supabase && window.supabase.createClient) && tries < 60) { await new Promise(r => setTimeout(r, 100)); tries++; }
+    if (window.supabase && window.supabase.createClient) {
+      try { this.sb = window.supabase.createClient('https://sihjxgnbappsmntswmdc.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpaGp4Z25iYXBwc21udHN3bWRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3NjE5ODksImV4cCI6MjA5ODMzNzk4OX0.OrFc389Ul_s5TyrFwiEdHUUgLhROjTCboV8LklhuNP0'); } catch (e) {}
+    }
+  }
+  submitMessage() {
+    const t = (this.state.msgText || '').trim();
+    const n = (this.state.msgName || '').trim();
+    if (!n || !t) { this.setState({ msgError: 'Escribe tu nombre y tu mensaje.' }); return; }
+    const messages = [{ name: n, text: t }].concat(this.state.messages);
+    try { localStorage.setItem('emiliano_messages', JSON.stringify(messages)); } catch (e) {}
+    // Guardar en Supabase (tabla mensajes) para poder descargarlos luego
+    if (this.sb) { try { this.sb.from('mensajes').insert({ nombre: n, mensaje: t }).then(function(){}, function(){}); } catch (e) {} }
+    this.setState({ messages: messages, msgSent: true, msgName: '', msgText: '', msgError: '' });
+  }
+
+  openConfirmModal() { this.setState({ confirmModalOpen: true, confirmThanks: false, showForm: false, formError: '' }); }
+  closeConfirmModal() { this.setState({ confirmModalOpen: false }); }
+  submitConfirm() {
+    const n = this.state.fNombre.trim();
+    if (!n) { this.setState({ formError: 'Por favor ingresa al menos tu nombre.' }); return; }
+    const extras = this.state.extraNames.map(x => x.trim()).filter(Boolean);
+    const names = [n].concat(extras).slice(0, 4);
+    const att = { names: names, nombre: n };
+    try { localStorage.setItem('emiliano_attendee', JSON.stringify(att)); } catch (e) {}
+    if (this.sb) { try { this.sb.from('asistentes').insert({ nombres: names, total: names.length }).then(function(){}, function(){}); } catch (e) {} }
+    this.setState({ attendee: att, confirmThanks: true, formError: '', fNombre: '', extraNames: [] });
+  }
+  yaReserve() { this.setState({ confirmThanks: true }); }
+
+  addAttendee() {
+    this.setState(s => {
+      if (1 + s.extraNames.length >= 4) return {};
+      return { extraNames: s.extraNames.concat(['']) };
+    });
+  }
+
+  removeAttendee(i) {
+    this.setState(s => {
+      const e = s.extraNames.slice();
+      e.splice(i, 1);
+      return { extraNames: e };
+    });
+  }
+
+  setExtraName(i, v) {
+    this.setState(s => {
+      const e = s.extraNames.slice();
+      e[i] = v;
+      return { extraNames: e };
+    });
+  }
+
+  submitAttendance() {
+    const n = this.state.fNombre.trim();
+    if (!n) { this.setState({ formError: 'Por favor ingresa al menos tu nombre.' }); return; }
+    const extras = this.state.extraNames.map(x => x.trim()).filter(Boolean);
+    const names = [n].concat(extras).slice(0, 3);
+    const att = { names: names, nombre: n };
+    try { localStorage.setItem('emiliano_attendee', JSON.stringify(att)); } catch (e) {}
+    const pending = this.state.pendingItem;
+    this.setState({ attendee: att, showForm: false, formError: '', fNombre: '', extraNames: [] });
+    if (pending) this.doReserve(pending);
+  }
+
+  tick() {
+    const diff = this.target - Date.now();
+    const p = n => String(n).padStart(2, '0');
+    let d, h, m, s;
+    if (diff <= 0) { d = h = m = s = '00'; }
+    else {
+      d = p(Math.floor(diff / 86400000));
+      h = p(Math.floor((diff % 86400000) / 3600000));
+      m = p(Math.floor((diff % 3600000) / 60000));
+      s = p(Math.floor((diff % 60000) / 1000));
+    }
+    const set = (id, v) => { const el = document.getElementById(id); if (el && el.textContent !== v) el.textContent = v; };
+    set('cd-d', d); set('cd-h', h); set('cd-m', m); set('cd-s', s);
+  }
+
+  initAudio() {
+    if (this.audio) return;
+    const a = new Audio('assets/circle-of-life.mp3');
+    a.loop = true;
+    a.volume = 0.5;
+    a.preload = 'auto';
+    this.audio = a;
+    // Try to autoplay on load; if blocked by the browser, start on first interaction.
+    const tryPlay = () => {
+      const p = a.play();
+      if (p && p.catch) p.catch(() => {});
+    };
+    tryPlay();
+    const onFirst = () => {
+      if (this.state.soundOn && a.paused) tryPlay();
+      window.removeEventListener('pointerdown', onFirst);
+      window.removeEventListener('keydown', onFirst);
+      window.removeEventListener('touchstart', onFirst);
+    };
+    window.addEventListener('pointerdown', onFirst, { once: true });
+    window.addEventListener('keydown', onFirst, { once: true });
+    window.addEventListener('touchstart', onFirst, { once: true });
+  }
+
+  toggleSound() {
+    const on = !this.state.soundOn;
+    this.setState({ soundOn: on, muted: !on });
+    if (!this.audio) { this.initAudio(); }
+    if (!this.audio) return;
+    if (on) { const p = this.audio.play(); if (p && p.catch) p.catch(() => {}); }
+    else { this.audio.pause(); }
+  }
+
+  reserveGift(id) {
+    this.setState(s => {
+      const r = Object.assign({}, s.reserved);
+      r[id] = !r[id];
+      try { localStorage.setItem('emiliano_reserved', JSON.stringify(r)); } catch (e) {}
+      return { reserved: r };
+    });
+  }
+
+  addMessage() {
+    const t = this.state.msgText.trim();
+    if (!t) return;
+    const n = this.state.msgName.trim() || 'Anónimo';
+    this.setState(s => {
+      const messages = [{ name: n, text: t }].concat(s.messages);
+      try { localStorage.setItem('emiliano_messages', JSON.stringify(messages)); } catch (e) {}
+      return { messages, msgName: '', msgText: '' };
+    });
+  }
+
+  scrollToId(id) {
+    const el = document.getElementById(id);
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 10, behavior: 'smooth' });
+  }
+
+  openGifts() {
+    this.setState({ giftsOpen: true });
+    setTimeout(() => this.scrollToId('sec-regalos'), 60);
+  }
+
+  setupReveals() {
+    const els = Array.from(document.querySelectorAll('[data-reveal]'));
+    const reveal = () => {
+      const vh = window.innerHeight || 800;
+      for (const el of els) {
+        if (el.classList.contains('is-in')) continue;
+        const r = el.getBoundingClientRect();
+        if (r.top < vh * 0.92 && r.bottom > -40) el.classList.add('is-in');
+      }
+    };
+    reveal();
+    window.addEventListener('scroll', () => requestAnimationFrame(reveal), { passive: true });
+    window.addEventListener('resize', reveal);
+  }
+
+  renderVals() {
+    const r = this.state.reserved || {};
+    const tryReserve = (id) => this.tryReserve(id);
+    let total = 0, taken = 0;
+    const categories = this.GIFTS.map((c, ci) => ({
+      title: c.title, lead: c.lead, img: c.img || '', hasImg: !!c.img,
+      items: c.items.map((name, ii) => {
+        const id = 'g' + ci + '-' + ii;
+        const reserved = !!r[id];
+        total++; if (reserved) taken++;
+        return { id, name, reserved, notReserved: !reserved, onReserve: () => tryReserve(id) };
+      })
+    }));
+    const goGiftList = () => { window.location.href = 'Lista de Regalos Emiliano.dc.html'; };
+    const featured = this.FEATURED.map(f => ({ name: f.name, card: f.card, onOpen: goGiftList }));
+    const gc = this.state.giftCat;
+    const modalCat = (gc != null) ? this.GIFTS[gc] : null;
+    const giftModalItems = modalCat ? modalCat.items.map((name, ii) => {
+      const id = 'g' + gc + '-' + ii;
+      const reserved = !!r[id];
+      return { id, name, reserved, notReserved: !reserved, onReserve: () => tryReserve(id) };
+    }) : [];
+    const att = this.state.attendee;
+    return {
+      story: this.STORY.map((s) => ({ n: s.n, img: s.img, card: s.card, pos: s.pos, text: s.text, onZoom: () => this.openZoom(s) })),
+      zoomOpen: !!this.state.zoomCard,
+      zoomCardBg: this.state.zoomCard ? this.state.zoomCard.card : '',
+      zoomImg: this.state.zoomCard ? this.state.zoomCard.img : '',
+      zoomPos: this.state.zoomCard ? this.state.zoomCard.pos : 'center',
+      zoomText: this.state.zoomCard ? this.state.zoomCard.text : '',
+      closeZoom: () => this.closeZoom(),
+      featured,
+      categories,
+      giftModalOpen: gc != null,
+      giftModalShowForm: this.state.showForm,
+      giftModalList: gc != null && !this.state.showForm,
+      giftModalTitle: modalCat ? modalCat.title : '',
+      giftModalLead: modalCat ? modalCat.lead : '',
+      giftModalItems,
+      attendeeConfirmed: !!att,
+      attendeeName: att ? (att.names ? att.names.join(', ') : att.nombre) : '',
+      closeGiftModal: () => this.closeGiftModal(),
+      backToList: () => this.setState({ showForm: false, formError: '' }),
+      stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); },
+      formError: this.state.formError,
+      fNombre: this.state.fNombre,
+      onFNombre: (e) => this.setState({ fNombre: e.target.value }),
+      extraNames: this.state.extraNames.map((v, i) => ({
+        value: v,
+        placeholder: 'Nombre del asistente ' + (i + 2),
+        onChange: (e) => this.setExtraName(i, e.target.value),
+        onRemove: () => this.removeAttendee(i)
+      })),
+      canAddAttendee: (1 + this.state.extraNames.length) < 4,
+      addAttendee: () => this.addAttendee(),
+      submitAttendance: () => this.submitAttendance(),
+      msgModalOpen: this.state.msgModalOpen,
+      msgSent: this.state.msgSent,
+      msgFormShown: !this.state.msgSent,
+      msgError: this.state.msgError,
+      openMsgModal: () => this.openMsgModal(),
+      closeMsgModal: () => this.closeMsgModal(),
+      submitMessage: () => this.submitMessage(),
+      confirmModalOpen: this.state.confirmModalOpen,
+      confirmThanks: this.state.confirmThanks,
+      confirmFormShown: !this.state.confirmThanks,
+      openConfirmModal: () => this.openConfirmModal(),
+      closeConfirmModal: () => this.closeConfirmModal(),
+      submitConfirm: () => this.submitConfirm(),
+      yaReserve: () => this.yaReserve(),
+      messages: this.state.messages,
+      totalGifts: total,
+      takenGifts: taken,
+      giftsOpen: this.state.giftsOpen,
+      msgOpen: this.state.msgOpen,
+      giftsBtnLabel: this.state.giftsOpen ? 'Ocultar regalos' : 'Ver todos los regalos',
+      msgBtnLabel: this.state.msgOpen ? 'Cerrar libro' : 'Dejar mensaje',
+      msgName: this.state.msgName,
+      msgText: this.state.msgText,
+      onName: (e) => this.setState({ msgName: e.target.value }),
+      onText: (e) => this.setState({ msgText: e.target.value }),
+      addMessage: () => this.addMessage(),
+      toggleGifts: () => { window.location.href = 'Lista de Regalos Emiliano.dc.html'; },
+      toggleMsg: () => this.setState(s => ({ msgOpen: !s.msgOpen })),
+      goDetails: () => this.scrollToId('sec-detalles'),
+      mapMenu: this.state.mapMenu,
+      onMapClick: (e) => { const mobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || ''); if (mobile) { if (e && e.preventDefault) e.preventDefault(); this.setState(s => ({ mapMenu: !s.mapMenu })); } },
+      closeMapMenu: () => this.setState({ mapMenu: false }),
+      toggleSound: () => this.toggleSound(),
+      soundGlyph: this.state.soundOn ? '♫' : '♪',
+      soundLabel: this.state.soundOn ? 'Silenciar' : 'Activa el sonido'
+    };
+  }
+}
+</script>
+</body>
+</html>
