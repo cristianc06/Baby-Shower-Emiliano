@@ -124,7 +124,7 @@ img{user-select:none;-webkit-user-drag:none}
   </footer>
 
   <!-- volver + admin -->
-  <a href="index.html" style="position:fixed;top:14px;left:14px;z-index:50;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 13px;border:1px solid rgba(184,137,60,.5);border-radius:26px;background:rgba(251,246,236,.86);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#8a6526;font-family:'Jost';font-size:10px;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;box-shadow:0 4px 14px rgba(120,90,40,.16);">← Invitación</a>
+  <a href="Invitacion Emiliano.dc.html" style="position:fixed;top:14px;left:14px;z-index:50;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 13px;border:1px solid rgba(184,137,60,.5);border-radius:26px;background:rgba(251,246,236,.86);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#8a6526;font-family:'Jost';font-size:10px;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;box-shadow:0 4px 14px rgba(120,90,40,.16);">← Invitación</a>
   <button onClick="{{ openAdmin }}" aria-label="Administración" style="position:fixed;bottom:16px;right:16px;z-index:50;display:inline-flex;align-items:center;gap:7px;height:42px;padding:0 17px;border:1px solid rgba(184,137,60,.5);border-radius:30px;background:rgba(251,246,236,.9);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#8a6526;font-family:'Jost';font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;box-shadow:0 6px 18px rgba(120,90,40,.2);">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a6526" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 7 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H1a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 2.6 7a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H7a1.6 1.6 0 0 0 1-1.5V1a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V7a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg>
     Admin
@@ -817,7 +817,7 @@ class Component extends DCLogic {
   }
 
   catProducts(cat) {
-    if (this.state.dbProducts) return (this.state.dbProducts[cat] ||if (this.state.dbProducts) return (this.state.dbProducts[cat] || []).map(r => ({ id: r.id, categoria: r.categoria, nombre: r.nombre, foto: r.foto || '', stores: r.stores || [], key: r.id, orden: r.orden }));
+    if (this.state.dbProducts) return (this.state.dbProducts[cat] || []).map(r => ({ id: r.id, categoria: r.categoria, nombre: r.nombre, foto: r.foto || '', stores: r.stores || [], key: r.id, orden: r.orden }));
     return (this.FALLBACK[cat] || []).map((p, i) => ({ id: null, categoria: cat, nombre: p.name, foto: p.foto || '', stores: p.stores || [], key: cat + '-' + i }));
   }
 
