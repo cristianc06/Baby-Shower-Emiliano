@@ -251,6 +251,12 @@ img{user-select:none;-webkit-user-drag:none}
                     <div style="font-family:'Jost';font-weight:500;font-size:15px;color:#3a2f1c;">{{ p.name }}</div>
                     <div style="font-family:'Jost';font-size:11.5px;color:#9a8559;">{{ p.storesLabel }}</div>
                   </div>
+                  <sc-if value="{{ p.canMoveUp }}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{ p.onMoveUp }}" aria-label="Subir" style="flex:none;width:30px;height:30px;border:1px solid rgba(184,137,60,.4);border-radius:50%;background:transparent;color:#8a6526;font-size:13px;cursor:pointer;">↑</button>
+                  </sc-if>
+                  <sc-if value="{{ p.canMoveDown }}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{ p.onMoveDown }}" aria-label="Bajar" style="flex:none;width:30px;height:30px;border:1px solid rgba(184,137,60,.4);border-radius:50%;background:transparent;color:#8a6526;font-size:13px;cursor:pointer;">↓</button>
+                  </sc-if>
                   <button onClick="{{ p.onEdit }}" style="flex:none;padding:8px 14px;border:1px solid #B8893C;border-radius:22px;background:transparent;color:#8a6526;font-family:'Jost';font-size:11px;cursor:pointer;">Editar</button>
                   <sc-if value="{{ p.bought }}" hint-placeholder-val="{{ false }}">
                     <button onClick="{{ p.onUnmark }}" style="flex:none;padding:8px 12px;border:1px solid #566134;border-radius:22px;background:#566134;color:#FBF6EC;font-family:'Jost';font-size:11px;cursor:pointer;white-space:nowrap;">Quitar comprado</button>
@@ -718,6 +724,21 @@ class Component extends DCLogic {
     await this.refreshProducts();
   }
 
+  async moveProduct(p, dir) {
+    if (!this.sb || !p.id) return;
+    const list = this.catProducts(p.categoria);
+    const idx = list.findIndex(x => x.key === p.key);
+    const swapIdx = idx + dir;
+    if (idx < 0 || swapIdx < 0 || swapIdx >= list.length) return;
+    const a = list[idx], b = list[swapIdx];
+    if (!b.id) return;
+    const ordenA = a.orden != null ? a.orden : Date.now();
+    const ordenB = b.orden != null ? b.orden : Date.now() + 1;
+    await this.sb.from('productos').update({ orden: ordenB }).eq('id', a.id);
+    await this.sb.from('productos').update({ orden: ordenA }).eq('id', b.id);
+    await this.refreshProducts();
+  }
+
   setForm(patch) { this.setState(s => ({ form: Object.assign({}, s.form, patch) })); }
   addStore() { this.setState(s => ({ form: Object.assign({}, s.form, { stores: s.form.stores.concat([{ store: 'falabella', value: '' }]) }) })); }
   removeStore(i) { this.setState(s => { const st = s.form.stores.slice(); st.splice(i, 1); return { form: Object.assign({}, s.form, { stores: st }) }; }); }
@@ -796,7 +817,7 @@ class Component extends DCLogic {
   }
 
   catProducts(cat) {
-    if (this.state.dbProducts) return (this.state.dbProducts[cat] || []).map(r => ({ id: r.id, categoria: r.categoria, nombre: r.nombre, foto: r.foto || '', stores: r.stores || [], key: r.id }));
+    if (this.state.dbProducts) return (this.state.dbProducts[cat] ||if (this.state.dbProducts) return (this.state.dbProducts[cat] || []).map(r => ({ id: r.id, categoria: r.categoria, nombre: r.nombre, foto: r.foto || '', stores: r.stores || [], key: r.id, orden: r.orden }));
     return (this.FALLBACK[cat] || []).map((p, i) => ({ id: null, categoria: cat, nombre: p.name, foto: p.foto || '', stores: p.stores || [], key: cat + '-' + i }));
   }
 
@@ -845,14 +866,18 @@ class Component extends DCLogic {
     else storeOptions = Object.keys(this.STORE_DEFS).filter(k => k !== 'whatsapp').map(id => ({ id, label: this.STORE_DEFS[id].label }));
     storeOptions = storeOptions.concat([{ id: 'whatsapp', label: 'Comprar por WhatsApp' }]);
     const adminCats = this.CATS.map(c => ({ name: c.name, onSelect: () => this.setState({ cat: c.id }), bg: c.id === cat ? '#566134' : 'transparent', color: c.id === cat ? '#FBF6EC' : '#8a6526', border: c.id === cat ? '#566134' : 'rgba(184,137,60,.45)' }));
-    const adminProducts = this.catProducts(cat).map(p => ({
+    const adminProducts = this.catProducts(cat).map((p, i, arr) => ({
       name: p.nombre,
       bought: !!this.state.bought[p.key],
       onUnmark: () => this.unmarkCompra(p.key),
       fotoBg: p.foto ? "url('" + p.foto + "')" : 'none',
       storesLabel: (p.stores || []).map(s => (this.STORE_DEFS[s.s || s.store] || {}).label || (s.s || s.store)).join(' · ') || 'Sin tiendas',
       onEdit: () => this.editProduct(p),
-      onDelete: () => this.deleteProduct(p)
+      onDelete: () => this.deleteProduct(p),
+      onMoveUp: () => this.moveProduct(p, -1),
+      onMoveDown: () => this.moveProduct(p, 1),
+      canMoveUp: i > 0,
+      canMoveDown: i < arr.length - 1
     }));
 
     let fStores = [];
