@@ -157,22 +157,6 @@ section,footer{position:relative}
   </section>
 
 
-      <!-- ===== 7 · MENSAJES Y CONFIRMACIÓN ===== -->
-  <section data-screen-label="Mensajes y RSVP" style="position:relative;background:url('assets/bg-claro.png') center/cover;padding:30px 20px;">
-    <div style="max-width:1040px;margin:0 auto;display:flex;flex-wrap:wrap;gap:20px;">
-            <!-- IZQUIERDA · mensajes -->
-      <div data-reveal style="flex:1 1 360px;position:relative;aspect-ratio:3/1;min-height:230px;border-radius:20px;overflow:hidden;background:url('assets/bg-mensajes.png') center/cover no-repeat;box-shadow:0 14px 34px rgba(120,90,40,.18);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:18px 12% 18px 5%;">
-        <img src="assets/txt-mensaje.png" alt="Un mensaje para Emiliano. Déjale tus mejores deseos en su libro de aventuras." style="width:min(80%,384px);height:auto;animation:floatYsm 4.5s ease-in-out infinite;" />
-        <img onClick="{{ openMsgModal }}" src="assets/btn-dejar-mensaje.png" alt="Dejar mensaje" class="msg-cta" style="width:min(58%,207px);height:auto;cursor:pointer;transition:transform .3s,filter .3s;filter:drop-shadow(0 8px 16px rgba(90,60,20,.3));" style-hover="transform:translateY(-3px) scale(1.03);filter:drop-shadow(0 14px 24px rgba(90,60,20,.42))" />
-      </div>
-            <!-- DERECHA · confirmación -->
-      <div data-reveal style="flex:1 1 360px;position:relative;aspect-ratio:2.4/1;min-height:180px;border-radius:20px;overflow:hidden;background:url('assets/bg-confirmar.png') center/cover no-repeat;box-shadow:0 14px 34px rgba(120,90,40,.18);display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:16px;padding:26px 34px;">
-        <img src="assets/txt-confirmar.png" alt="¿Nos acompañarás en esta aventura? Confirma tu asistencia y sé parte de este día inolvidable." style="width:min(60%,230px);height:auto;animation:floatYsm 5s ease-in-out infinite;" />
-        <img onClick="{{ openConfirmModal }}" src="assets/btn-confirmar.png" alt="Confirmar asistencia" style="width:min(58%,210px);height:auto;cursor:pointer;transition:transform .3s,filter .3s;filter:drop-shadow(0 8px 16px rgba(90,60,20,.3));" style-hover="transform:translateY(-3px) scale(1.03);filter:drop-shadow(0 14px 24px rgba(90,60,20,.42))" />
-      </div>
-    </div>
-  </section>
-
   <!-- ===== 4 · DETALLES ===== -->
   <section id="sec-detalles" data-screen-label="Detalles" class="det-section" style="position:relative;height:370px;padding:0 20px;overflow:hidden;background:transparent;display:flex;align-items:center;">
     <div style="position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(241,232,210,0) 78%,#f1e8d2 100%),url('assets/bg-claro.png') center/cover no-repeat;"></div>
@@ -225,6 +209,22 @@ section,footer{position:relative}
           <a href="https://www.google.com/maps/search/?api=1&query=Urbanizaci%C3%B3n+Nature+Aqua+Sabaneta+Antioquia" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:9px;min-width:200px;justify-content:center;padding:13px 26px;border-radius:30px;background:linear-gradient(135deg,#E6C873,#B8893C);color:#3a2a0f;font-family:'Jost';font-weight:500;font-size:13px;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;box-shadow:0 8px 20px rgba(184,137,60,.4);">Abrir en Google Maps</a>
         </div>
       </sc-if>
+    </div>
+  </section>
+
+        <!-- ===== 7 · MENSAJES Y CONFIRMACIÓN ===== -->
+  <section data-screen-label="Mensajes y RSVP" style="position:relative;background:url('assets/bg-claro.png') center/cover;padding:30px 20px;">
+    <div style="max-width:1040px;margin:0 auto;display:flex;flex-wrap:wrap;gap:20px;">
+            <!-- IZQUIERDA · mensajes -->
+      <div data-reveal style="flex:1 1 360px;position:relative;aspect-ratio:3/1;min-height:230px;border-radius:20px;overflow:hidden;background:url('assets/bg-mensajes.png') center/cover no-repeat;box-shadow:0 14px 34px rgba(120,90,40,.18);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:18px 12% 18px 5%;">
+        <img src="assets/txt-mensaje.png" alt="Un mensaje para Emiliano. Déjale tus mejores deseos en su libro de aventuras." style="width:min(80%,384px);height:auto;animation:floatYsm 4.5s ease-in-out infinite;" />
+        <img onClick="{{ openMsgModal }}" src="assets/btn-dejar-mensaje.png" alt="Dejar mensaje" class="msg-cta" style="width:min(58%,207px);height:auto;cursor:pointer;transition:transform .3s,filter .3s;filter:drop-shadow(0 8px 16px rgba(90,60,20,.3));" style-hover="transform:translateY(-3px) scale(1.03);filter:drop-shadow(0 14px 24px rgba(90,60,20,.42))" />
+      </div>
+            <!-- DERECHA · confirmación -->
+      <div data-reveal style="flex:1 1 360px;position:relative;aspect-ratio:2.4/1;min-height:180px;border-radius:20px;overflow:hidden;background:url('assets/bg-confirmar.png') center/cover no-repeat;box-shadow:0 14px 34px rgba(120,90,40,.18);display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:16px;padding:26px 34px;">
+        <img src="assets/txt-confirmar.png" alt="¿Nos acompañarás en esta aventura? Confirma tu asistencia y sé parte de este día inolvidable." style="width:min(60%,230px);height:auto;animation:floatYsm 5s ease-in-out infinite;" />
+        <img onClick="{{ openConfirmModal }}" src="assets/btn-confirmar.png" alt="Confirmar asistencia" style="width:min(58%,210px);height:auto;cursor:pointer;transition:transform .3s,filter .3s;filter:drop-shadow(0 8px 16px rgba(90,60,20,.3));" style-hover="transform:translateY(-3px) scale(1.03);filter:drop-shadow(0 14px 24px rgba(90,60,20,.42))" />
+      </div>
     </div>
   </section>
 
