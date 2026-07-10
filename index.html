@@ -752,7 +752,7 @@ class Component extends DCLogic {
         return { id, name, reserved, notReserved: !reserved, onReserve: () => tryReserve(id) };
       })
     }));
-    const goGiftList = () => { window.location.href = 'Regalos.html'; };
+    const goGiftList = () => { window.location.href = 'regalos.html'; };
     const featured = this.FEATURED.map(f => ({ name: f.name, card: f.card, onOpen: goGiftList }));
     const gc = this.state.giftCat;
     const modalCat = (gc != null) ? this.GIFTS[gc] : null;
@@ -821,7 +821,7 @@ class Component extends DCLogic {
       onName: (e) => this.setState({ msgName: e.target.value }),
       onText: (e) => this.setState({ msgText: e.target.value }),
       addMessage: () => this.addMessage(),
-      toggleGifts: () => { window.location.href = 'Regalos.html'; },
+      toggleGifts: () => { window.location.href = 'regalos.html'; },
       toggleMsg: () => this.setState(s => ({ msgOpen: !s.msgOpen })),
       goDetails: () => this.scrollToId('sec-detalles'),
       mapMenu: this.state.mapMenu,
