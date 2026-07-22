@@ -342,6 +342,20 @@ section,footer{position:relative}
   </section>
 
 
+  <!-- MODAL · RECORDATORIO FECHA LÍMITE RSVP -->
+  <sc-if value="{{ deadlineModalOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeDeadlineModal }}" style="position:fixed;inset:0;z-index:540;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(24,16,6,.62);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);">
+      <div onClick="{{ stop }}" style="position:relative;width:min(92vw,400px);background:#FBF6EC;border:2px solid rgba(184,137,60,.4);border-radius:22px;box-shadow:0 26px 70px rgba(20,12,4,.55);padding:28px 24px 24px;text-align:center;">
+        <button onClick="{{ closeDeadlineModal }}" aria-label="Cerrar" style="position:absolute;top:12px;right:12px;width:34px;height:34px;border:1px solid rgba(184,137,60,.45);border-radius:50%;background:#fff;color:#8a6526;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+        <div style="font-size:32px;margin-bottom:8px;">⏳</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:23px;color:#6B4F26;line-height:1.2;">¡No te quedes por fuera de la aventura!</div>
+        <p style="font-family:'Jost';font-weight:300;font-size:13.5px;line-height:1.6;color:#7a6843;margin:10px 0 4px;">Tienes plazo de confirmar tu asistencia hasta el <strong style="color:#8a6526;font-weight:600;">31 de julio</strong>.</p>
+        <button onClick="{{ openConfirmFromDeadline }}" style="width:100%;margin-top:16px;padding:14px;border:none;border-radius:28px;background:linear-gradient(135deg,#E6C873,#B8893C);color:#3a2a0f;font-family:'Jost';font-weight:500;font-size:12px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;box-shadow:0 10px 24px rgba(184,137,60,.3);">Confirmar asistencia</button>
+        <button onClick="{{ closeDeadlineModal }}" style="width:100%;margin-top:8px;padding:8px;border:none;background:transparent;color:#9a7c42;font-family:'Jost';font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;">Lo haré más tarde</button>
+      </div>
+    </div>
+  </sc-if>
+
   <!-- MODAL · ZOOM HISTORIA -->
   <sc-if value="{{ zoomOpen }}" hint-placeholder-val="{{ false }}">
     <div onClick="{{ closeZoom }}" style="position:fixed;inset:0;z-index:520;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(24,16,6,.72);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);">
@@ -462,7 +476,8 @@ class Component extends DCLogic {
     giftCat: null, showForm: false, pendingItem: null, attendee: null,
     fNombre: '', extraNames: [], formError: '',
     msgModalOpen: false, msgSent: false, msgError: '',
-    confirmModalOpen: false, confirmThanks: false
+    confirmModalOpen: false, confirmThanks: false,
+    deadlineModalOpen: false
   };
 
   STORY = [
@@ -498,7 +513,7 @@ class Component extends DCLogic {
     { title: 'Kit Montessori Explorador', lead: 'Aprender jugando', items: ['Cubos apilables', 'Rompecabezas blandos', 'Juguetes de coordinación', 'Espejo Montessori'] }
   ];
 
-  target = new Date(2026, 7, 16, 15, 0, 0).getTime();
+  target = new Date(2026, 7, 16, 16, 0, 0).getTime();
 
   componentDidMount() {
     this.tick();
@@ -507,6 +522,7 @@ class Component extends DCLogic {
     setTimeout(() => { this.setupReveals(); this.setupDust(); }, 60);
     this.initAudio();
     this.initMsgDb();
+    this.maybeShowDeadline();
     this._robust = setTimeout(() => {
       if ((document.timeline.currentTime || 0) < 1) {
         let k = document.getElementById('reveal-kill');
@@ -558,6 +574,22 @@ class Component extends DCLogic {
       const a = JSON.parse(localStorage.getItem('emiliano_attendee') || 'null');
       this.setState(s => ({ reserved: r || {}, messages: (m && m.length) ? m : s.messages, attendee: a || null }));
     } catch (e) {}
+  }
+
+  maybeShowDeadline() {
+    let already = null;
+    try { already = localStorage.getItem('emiliano_attendee'); } catch (e) {}
+    if (already) return;
+    setTimeout(() => this.setState({ deadlineModalOpen: true }), 1400);
+  }
+
+  closeDeadlineModal() {
+    this.setState({ deadlineModalOpen: false });
+  }
+
+  openConfirmFromDeadline() {
+    this.setState({ deadlineModalOpen: false });
+    this.openConfirmModal();
   }
 
   openCategory(ci) { this.setState({ giftCat: ci, showForm: false, formError: '' }); }
@@ -812,6 +844,9 @@ class Component extends DCLogic {
       closeConfirmModal: () => this.closeConfirmModal(),
       submitConfirm: () => this.submitConfirm(),
       yaReserve: () => this.yaReserve(),
+      deadlineModalOpen: this.state.deadlineModalOpen,
+      closeDeadlineModal: () => this.closeDeadlineModal(),
+      openConfirmFromDeadline: () => this.openConfirmFromDeadline(),
       messages: this.state.messages,
       totalGifts: total,
       takenGifts: taken,
