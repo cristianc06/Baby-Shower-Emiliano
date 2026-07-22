@@ -580,7 +580,7 @@ class Component extends DCLogic {
     let already = null;
     try { already = localStorage.getItem('emiliano_attendee'); } catch (e) {}
     if (already) return;
-    setTimeout(() => this.setState({ deadlineModalOpen: true }), 1400);
+    setTimeout(() => this.setState({ deadlineModalOpen: true }), 30000);
   }
 
   closeDeadlineModal() {
