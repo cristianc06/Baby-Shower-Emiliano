@@ -221,7 +221,9 @@ section,footer{position:relative}
         <img onClick="{{ openMsgModal }}" src="assets/btn-dejar-mensaje.png" alt="Dejar mensaje" class="msg-cta" style="width:min(58%,207px);height:auto;cursor:pointer;transition:transform .3s,filter .3s;filter:drop-shadow(0 8px 16px rgba(90,60,20,.3));" style-hover="transform:translateY(-3px) scale(1.03);filter:drop-shadow(0 14px 24px rgba(90,60,20,.42))" />
       </div>
             <!-- DERECHA · confirmación -->
-      <div data-reveal style="flex:1 1 360px;position:relative;aspect-ratio:2.4/1;min-height:180px;border-radius:20px;overflow:hidden;background:url('assets/gracias-confirmar.png') center/cover no-repeat;box-shadow:0 14px 34px rgba(120,90,40,.18);display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:16px;padding:26px 34px;">
+      <div data-reveal style="flex:1 1 360px;position:relative;aspect-ratio:2.4/1;min-height:180px;border-radius:20px;overflow:hidden;background:url('assets/bg-confirmar.png') center/cover no-repeat;box-shadow:0 14px 34px rgba(120,90,40,.18);display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:16px;padding:26px 34px;">
+        <img src="assets/txt-confirmar.png" alt="¿Nos acompañarás en esta aventura? Confirma tu asistencia y sé parte de este día inolvidable." style="width:min(60%,230px);height:auto;animation:floatYsm 5s ease-in-out infinite;" />
+        <img onClick="{{ openConfirmModal }}" src="assets/btn-confirmar.png" alt="Confirmar asistencia" style="width:min(58%,210px);height:auto;cursor:pointer;transition:transform .3s,filter .3s;filter:drop-shadow(0 8px 16px rgba(90,60,20,.3));" style-hover="transform:translateY(-3px) scale(1.03);filter:drop-shadow(0 14px 24px rgba(90,60,20,.42))" />
       </div>
     </div>
   </section>
@@ -460,8 +462,7 @@ class Component extends DCLogic {
     giftCat: null, showForm: false, pendingItem: null, attendee: null,
     fNombre: '', extraNames: [], formError: '',
     msgModalOpen: false, msgSent: false, msgError: '',
-    confirmModalOpen: false, confirmThanks: false,
-    deadlineModalOpen: false
+    confirmModalOpen: false, confirmThanks: false
   };
 
   STORY = [
@@ -497,7 +498,7 @@ class Component extends DCLogic {
     { title: 'Kit Montessori Explorador', lead: 'Aprender jugando', items: ['Cubos apilables', 'Rompecabezas blandos', 'Juguetes de coordinación', 'Espejo Montessori'] }
   ];
 
-  target = new Date(2026, 7, 16, 16, 0, 0).getTime();
+  target = new Date(2026, 7, 16, 15, 0, 0).getTime();
 
   componentDidMount() {
     this.tick();
@@ -506,7 +507,6 @@ class Component extends DCLogic {
     setTimeout(() => { this.setupReveals(); this.setupDust(); }, 60);
     this.initAudio();
     this.initMsgDb();
-    this.maybeShowDeadline();
     this._robust = setTimeout(() => {
       if ((document.timeline.currentTime || 0) < 1) {
         let k = document.getElementById('reveal-kill');
@@ -558,22 +558,6 @@ class Component extends DCLogic {
       const a = JSON.parse(localStorage.getItem('emiliano_attendee') || 'null');
       this.setState(s => ({ reserved: r || {}, messages: (m && m.length) ? m : s.messages, attendee: a || null }));
     } catch (e) {}
-  }
-
-  maybeShowDeadline() {
-    let already = null;
-    try { already = localStorage.getItem('emiliano_attendee'); } catch (e) {}
-    if (already) return;
-    setTimeout(() => this.setState({ deadlineModalOpen: true }), 15000);
-  }
-
-  closeDeadlineModal() {
-    this.setState({ deadlineModalOpen: false });
-  }
-
-  openConfirmFromDeadline() {
-    this.setState({ deadlineModalOpen: false });
-    this.openConfirmModal();
   }
 
   openCategory(ci) { this.setState({ giftCat: ci, showForm: false, formError: '' }); }
@@ -828,9 +812,6 @@ class Component extends DCLogic {
       closeConfirmModal: () => this.closeConfirmModal(),
       submitConfirm: () => this.submitConfirm(),
       yaReserve: () => this.yaReserve(),
-      deadlineModalOpen: this.state.deadlineModalOpen,
-      closeDeadlineModal: () => this.closeDeadlineModal(),
-      openConfirmFromDeadline: () => this.openConfirmFromDeadline(),
       messages: this.state.messages,
       totalGifts: total,
       takenGifts: taken,
